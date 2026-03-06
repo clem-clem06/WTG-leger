@@ -3,16 +3,56 @@
 {% block title %}Accueil - WorkTogether Data Solutions{% endblock %}
 
 {% block body %}
-    <div class="container py-5">
+    {# SECTION HERO (Présentation) #}
+    <div class="bg-dark text-white py-5 mb-5">
+        <div class="container py-5 text-center">
+            <h1 class="display-4 fw-bold mb-4">WorkTogether Data Solutions</h1>
+            <p class="lead w-75 mx-auto mb-5">
+                Spécialiste dans la gestion de datacenters de pointe. Nous vous offrons une connectivité ultrarapide, une redondance électrique absolue et une sécurité physique et électronique de premier plan pour héberger vos infrastructures critiques.
+            </p>
+            <a href="#offres" class="btn btn-primary btn-lg px-5">Voir nos offres</a>
+        </div>
+    </div>
 
-        <header class="text-center mb-5">
-            <h1 class="display-4 fw-bold">Bienvenue chez WorkTogether Data Solutions</h1>
-            <p class="lead text-muted">Hébergez vos infrastructures dans nos datacenters hautement sécurisés.</p>
-        </header>
+    <div class="container mb-5">
+        {# SECTION STATISTIQUES #}
+        <div class="row text-center mb-5 g-4">
+            <div class="col-md-4">
+                <div class="card bg-light border-0 shadow-sm h-100 py-3">
+                    <div class="card-body">
+                        <h5 class="text-muted">Infrastructures</h5>
+                        <h2 class="display-5 fw-bold text-primary">{{ totalBaies }} Baies</h2>
+                        <p class="mb-0">Hautement sécurisées</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light border-0 shadow-sm h-100 py-3">
+                    <div class="card-body">
+                        <h5 class="text-muted">Capacité Totale</h5>
+                        <h2 class="display-5 fw-bold text-dark">{{ totalUnites }} U</h2>
+                        <p class="mb-0">D'espace d'hébergement</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-primary text-white border-0 shadow-sm h-100 py-3">
+                    <div class="card-body">
+                        <h5 class="text-white-50">Disponibilité</h5>
+                        <h2 class="display-5 fw-bold">{{ unitesDispo }} U</h2>
+                        <p class="mb-0">Restantes à la location</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <h2 class="text-center mb-4">Nos offres de location de baies</h2>
+        {# SECTION OFFRES (Celle qu'on a fait avant) #}
+        <div id="offres" class="text-center mb-5 pt-4">
+            <h2 class="fw-bold">Nos offres de location</h2>
+            <p class="text-muted">Choisissez la dimension qui correspond à votre projet.</p>
+        </div>
 
-        <div class="row justify-content-center g-4">
+        <div class="row justify-content-center g-4 mb-5">
             {% for offre in offres %}
                 <div class="col-12 col-md-6 col-lg-3">
                     <div class="card h-100 shadow-sm text-center border-primary">
@@ -33,6 +73,8 @@
                                 {% else %}
                                     <li><strong>{{ offre.nombreUnites }}</strong> Unité incluse</li>
                                 {% endif %}
+                                <li class="mt-2 text-success">✓ Support 24/7</li>
+                                <li>✓ Bande passante 10 Gbps</li>
                             </ul>
 
                             <a href="#" class="btn btn-lg btn-outline-primary mt-auto w-100">Choisir cette offre</a>
@@ -45,6 +87,12 @@
                 </div>
             {% endfor %}
         </div>
-
     </div>
+
+    {# FOOTER BASIQUE #}
+    <footer class="bg-dark text-white-50 py-4 text-center mt-auto">
+        <div class="container">
+            <p class="mb-0">&copy; 2026 WorkTogether Data Solutions. Tous droits réservés.</p>
+        </div>
+    </footer>
 {% endblock %}
