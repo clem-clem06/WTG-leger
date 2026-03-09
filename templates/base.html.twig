@@ -2,7 +2,7 @@
 <html lang="fr">
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
+        <title></title>
         <link rel="icon" href="">
 
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -18,28 +18,25 @@
 
     {% include 'nav_bar.html.twig' %}
 
-    <div class="container mt-4" id="flash-messages-container">
-        {# On boucle sur tous les messages flash (success, danger, warning) #}
-        {% for label, messages in app.flashes %}
-            {% for message in messages %}
-                <div class="alert alert-{{ label }} alert-dismissible fade show shadow-sm" role="alert">
-                    {# Icône dynamique selon le type d'erreur #}
-                    {% if label == 'danger' %}
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    {% elseif label == 'success' %}
-                        <i class="bi bi-check-circle-fill me-2"></i>
-                    {% endif %}
+    <div class="container mt-5 mb-5">
+        <div class="container mt-4" id="flash-messages-container">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show shadow-sm" role="alert">
+                        {% if label == 'danger' %}
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        {% elseif label == 'success' %}
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                        {% endif %}
 
-                    {{ message|raw }}
+                        {{ message|raw }}
 
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </div>
+        </div>
 
-    {# C'est ICI que le contenu des autres pages va s'afficher #}
-    <div class="container">
         {% block body %}{% endblock %}
     </div>
 
