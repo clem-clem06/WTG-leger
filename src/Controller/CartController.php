@@ -82,4 +82,23 @@ class CartController extends AbstractController
 
         return $this->redirectToRoute('app_cart');
     }
+
+    #[Route('/cart/decrease/{id}', name: 'app_cart_decrease')]
+    public function decrease(CartItem $cartItem, EntityManagerInterface $em): Response
+    {
+        // On vérifie que le CartItem appartient bien au panier de l'utilisateur
+        if ($cartItem->getCart()->getUser() === $this->getUser()) {
+            if ($cartItem->getQuantity() > 1) {
+                // Si > 1, on retire 1
+                $cartItem->setQuantity($cartItem->getQuantity() - 1);
+            } else {
+                // Si = 1, on supprime la ligne complètement
+                $em->remove($cartItem);
+                $this->addFlash('success', 'Offre retirée du panier.');
+            }
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('app_cart');
+    }
 }

@@ -29,7 +29,13 @@
                         <tr>
                             <td class="fw-bold text-primary">{{ item.offre.nom }}</td>
                             <td>{{ (item.price / 100)|number_format(2, ',', ' ') }} €</td>
-                            <td>{{ item.quantity }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <a href="{{ path('app_cart_decrease', {'id': item.id}) }}" class="btn btn-sm btn-outline-secondary me-2 fw-bold">-</a>
+                                    <span class="fs-5">{{ item.quantity }}</span>
+                                    <a href="{{ path('app_cart_add', {'id': item.offre.id}) }}" class="btn btn-sm btn-outline-secondary ms-2 fw-bold">+</a>
+                                </div>
+                            </td>
                             <td>{{ (sousTotal / 100)|number_format(2, ',', ' ') }} €</td>
                             <td>
                                 <a href="{{ path('app_cart_remove', {'id': item.id}) }}" class="btn btn-sm btn-outline-danger">
