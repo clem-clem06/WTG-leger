@@ -1,65 +1,79 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Checkout{% endblock %}
+{% block title %}Paiement - WorkTogether{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/checkout.js') }}" defer></script>
+{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <h1>Récapitulatif de commande</h1>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Offre</th>
-                    <th>Quantité</th>
-                    <th>Prix</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in cart.cartItems %}
-                <tr>
-                    <td>{{ item.offre.nom }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>{{ item.price / 100 }}€</td>
-                    <td>{{ (item.price * item.quantity) / 100 }}€</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th colspan="3">Total</th>
-                    <th>{% set total = 0 %}{% for item in cart.cartItems %}{% set total = total + (item.price * item.quantity) %}{% endfor %}{{ total / 100 }}€</th>
-                </tr>
-            </tfoot>
-        </table>
-        <form action="{{ path('app_checkout_process') }}" method="post" id="payment-form">
+    <div class="container py-5 mb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow-sm border-0 bg-light p-4">
+                    <h2 class="h4 fw-bold mb-4 text-center">Paiement Sécurisé</h2>
 
-            <div class="mb-3">
-                <label class="form-label">Numéro de carte
-                    <input type="text" name="cardNumber" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" required>
-                </label>
-            </div>
+                    {% if savedCard %}
+                        <div class="alert alert-info shadow-sm">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-credit-card"></i> Ma carte enregistrée</h5>
+                            <p class="mb-3 fs-5">
+                                **** **** **** <strong>{{ savedCard.last4 }}</strong><br>
+                                <small class="text-muted fs-6">Expire : {{ savedCard.expMonth }}/{{ savedCard.expYear }}</small>
+                            </p>
 
-            <div class="row mb-4">
-                <div class="col-6">
-                    <label class="form-label">Expiration (MM/YY)
-                        <input type="text" name="expDate" class="form-control" placeholder="12/28" maxlength="5" required>
-                    </label>
+                            <form action="{{ path('app_checkout_process') }}" method="post" class="saved-payment-form">
+                                <input type="hidden" name="useSavedCard" value="1">
+                                <button type="submit" class="btn btn-success w-100 py-2 fw-bold btn-saved-pay">
+                                    <span class="saved-pay-text">Payer avec cette carte</span>
+                                    <span class="spinner-border spinner-border-sm d-none saved-pay-spinner" role="status"></span>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="text-center my-4 text-muted fw-bold">OU</div>
+                    {% endif %}
+
+                    <form action="{{ path('app_checkout_process') }}" method="post" id="new-payment-form">
+                        <div class="mb-3">
+                            <label class="form-label">Nom sur la carte
+                                <input type="text" class="form-control" value="{{ app.user.userIdentifier }}" required>
+                            </label>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Numéro de carte
+                                <input type="text" name="cardNumber" class="form-control cc-input" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                            </label>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <label class="form-label">Expiration (MM/YY)
+                                    <input type="text" name="expDate" class="form-control exp-input" placeholder="12/28" maxlength="5" required>
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">CVC
+                                    <input type="text" class="form-control" placeholder="123" maxlength="3" required>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" name="saveCard" id="saveCard" value="1" checked>
+                            <label class="form-check-label text-muted small" for="saveCard">
+                                Mémoriser cette carte de manière sécurisée
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-5 btn-new-pay">
+                            <span class="new-pay-text">Confirmer le paiement</span>
+                            <span class="spinner-border spinner-border-sm d-none new-pay-spinner" role="status"></span>
+                        </button>
+                    </form>
                 </div>
-                <div class="col-6">
-                    <label class="form-label">CVC
-                        <input type="text" class="form-control" placeholder="123" maxlength="3" required>
-                    </label>
-                </div>
             </div>
-
-            <div class="form-check mb-4">
-                <input class="form-check-input" type="checkbox" name="saveCard" id="saveCard" value="1" checked>
-                <label class="form-check-label text-muted small" for="saveCard">
-                    Mémoriser cette carte de manière sécurisée
-                </label>
-            </div>
-
-            <button type="submit" class="btn btn-success">Payer</button>
-        </form>
+        </div>
     </div>
 {% endblock %}
