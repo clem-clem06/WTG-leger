@@ -8,7 +8,6 @@ use App\Entity\Offre;
 use App\Repository\CartRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -20,39 +19,67 @@ class CartController extends AbstractController
     public function index(CartRepository $cartRepository): Response
     {
         $user = $this->getUser();
-        $cart = $cartRepository->findByUser($user) ?? new Cart();
-        if (!$cart->getId()) {
-            $cart->setUser($user);
-            $cartRepository->save($cart, true);
-        }
+        // On cherche le panier de l'utilisateur
+        $cart = $cartRepository->findOneBy(['user' => $user]);
 
         return $this->render('cart/index.html.twig', [
             'cart' => $cart,
         ]);
     }
 
-    #[Route('/cart/add/{id}', name: 'app_cart_add', methods: ['POST'])]
-    public function add(Offre $offre, Request $request, CartRepository $cartRepository, EntityManagerInterface $em): Response
+    // J'ai enlevé methods: ['POST'] pour qu'on puisse juste utiliser un simple lien <a> depuis les offres
+    #[Route('/cart/add/{id}', name: 'app_cart_add')]
+    public function add(Offre $offre, CartRepository $cartRepository, EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
-        $cart = $cartRepository->findByUser($user) ?? new Cart();
-        if (!$cart->getId()) {
+
+        // 1. Récupérer ou créer le panier
+        $cart = $cartRepository->findOneBy(['user' => $user]);
+        if (!$cart) {
+            $cart = new Cart();
             $cart->setUser($user);
             $em->persist($cart);
         }
 
-        $quantity = $request->request->getInt('quantity', 1);
-        $cartItem = new CartItem();
-        $cartItem->setOffre($offre);
-        $cartItem->setQuantity($quantity);
-        $cartItem->setPrice($offre->getPrixMensuel()); // Exemple, ajustez selon besoin
-        $cart->addCartItem($cartItem);
+        // 2. Vérifier si l'offre est DÉJÀ dans le panier
+        $existingItem = null;
+        foreach ($cart->getCartItems() as $item) {
+            if ($item->getOffre() === $offre) {
+                $existingItem = $item;
+                break;
+            }
+        }
 
-        $em->persist($cartItem);
+        if ($existingItem) {
+            // Si elle y est, on ajoute +1 à la quantité
+            $existingItem->setQuantity($existingItem->getQuantity() + 1);
+        } else {
+            // Sinon, on crée une nouvelle ligne dans le panier
+            $cartItem = new CartItem();
+            $cartItem->setOffre($offre);
+            $cartItem->setQuantity(1);
+            $cartItem->setPrice($offre->getPrixMensuel()); // Attention : C'est en centimes !
+            $cart->addCartItem($cartItem);
+
+            $em->persist($cartItem);
+        }
+
         $em->flush();
+        $this->addFlash('success', 'L\'offre a été ajoutée à votre panier !');
 
         return $this->redirectToRoute('app_cart');
     }
 
-    // Ajoutez remove et update similaires
+    #[Route('/cart/remove/{id}', name: 'app_cart_remove')]
+    public function remove(CartItem $cartItem, EntityManagerInterface $em): Response
+    {
+        // Sécurité : On vérifie que la ligne appartient bien au panier de l'utilisateur connecté !
+        if ($cartItem->getCart()->getUser() === $this->getUser()) {
+            $em->remove($cartItem);
+            $em->flush();
+            $this->addFlash('success', 'Offre retirée du panier.');
+        }
+
+        return $this->redirectToRoute('app_cart');
+    }
 }

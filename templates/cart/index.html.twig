@@ -1,34 +1,61 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Panier{% endblock %}
+{% block title %}Mon Panier - WorkTogether{% endblock %}
 
 {% block body %}
-<div class="container">
-    <h1>Votre Panier</h1>
-    {% if cart.cartItems|length > 0 %}
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Offre</th>
-                <th>Quantité</th>
-                <th>Prix</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in cart.cartItems %}
-            <tr>
-                <td>{{ item.offre.nom }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ item.price / 100 }}€</td>
-                <td>{{ (item.price * item.quantity) / 100 }}€</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <a href="{{ path('app_checkout') }}" class="btn btn-primary">Commander</a>
-    {% else %}
-    <p>Votre panier est vide.</p>
-    {% endif %}
-</div>
+    <div class="container py-5 mb-5">
+        <h1 class="mb-4 fw-bold">Mon Panier</h1>
+
+        {% if cart and cart.cartItems|length > 0 %}
+            <div class="table-responsive shadow-sm rounded">
+                <table class="table table-hover align-middle mb-0 bg-white">
+                    <thead class="bg-light">
+                    <tr>
+                        <th>Offre</th>
+                        <th>Prix Unitaire (Mensuel)</th>
+                        <th>Quantité</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% set totalPanier = 0 %}
+
+                    {% for item in cart.cartItems %}
+                        {# Calcul du sous-total pour cette ligne #}
+                        {% set sousTotal = item.price * item.quantity %}
+                        {% set totalPanier = totalPanier + sousTotal %}
+
+                        <tr>
+                            <td class="fw-bold text-primary">{{ item.offre.nom }}</td>
+                            <td>{{ (item.price / 100)|number_format(2, ',', ' ') }} €</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ (sousTotal / 100)|number_format(2, ',', ' ') }} €</td>
+                            <td>
+                                <a href="{{ path('app_cart_remove', {'id': item.id}) }}" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i> Retirer
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot class="bg-light fw-bold">
+                    <tr>
+                        <td colspan="3" class="text-end">TOTAL À PAYER :</td>
+                        <td colspan="2" class="fs-4">{{ (totalPanier / 100)|number_format(2, ',', ' ') }} € <small class="text-muted fs-6">/ mois</small></td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="text-end mt-4">
+                <a href="{{ path('app_checkout') }}" class="btn btn-lg btn-success px-5">Passer au paiement</a>
+            </div>
+        {% else %}
+            <div class="text-center py-5 bg-light rounded shadow-sm">
+                <h3 class="text-muted mb-4">Votre panier est vide.</h3>
+                <a href="{{ path('app_home') }}#offres" class="btn btn-primary">Découvrir nos offres</a>
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}
