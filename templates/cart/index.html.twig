@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Panier{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Votre Panier</h1>
+    {% if cart.cartItems|length > 0 %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Offre</th>
+                <th>Quantité</th>
+                <th>Prix</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart.cartItems %}
+            <tr>
+                <td>{{ item.offre.nom }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price / 100 }}€</td>
+                <td>{{ (item.price * item.quantity) / 100 }}€</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ path('app_checkout') }}" class="btn btn-primary">Commander</a>
+    {% else %}
+    <p>Votre panier est vide.</p>
+    {% endif %}
+</div>
+{% endblock %}
