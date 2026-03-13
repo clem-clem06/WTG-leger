@@ -31,10 +31,34 @@
                 </tr>
             </tfoot>
         </table>
-        <form action="{{ path('app_checkout_process') }}" method="post">
-            <h3>Informations de paiement (simulé)</h3>
-            <label for="card_number">Numéro de carte:</label>
-            <input type="text" id="card_number" name="card_number" placeholder="1234 5678 9012 3456" required>
+        <form action="{{ path('app_checkout_process') }}" method="post" id="payment-form">
+
+            <div class="mb-3">
+                <label class="form-label">Numéro de carte
+                    <input type="text" name="cardNumber" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                </label>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <label class="form-label">Expiration (MM/YY)
+                        <input type="text" name="expDate" class="form-control" placeholder="12/28" maxlength="5" required>
+                    </label>
+                </div>
+                <div class="col-6">
+                    <label class="form-label">CVC
+                        <input type="text" class="form-control" placeholder="123" maxlength="3" required>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-check mb-4">
+                <input class="form-check-input" type="checkbox" name="saveCard" id="saveCard" value="1" checked>
+                <label class="form-check-label text-muted small" for="saveCard">
+                    Mémoriser cette carte de manière sécurisée
+                </label>
+            </div>
+
             <button type="submit" class="btn btn-success">Payer</button>
         </form>
     </div>
