@@ -28,18 +28,24 @@
                         <form action="{{ path('app_cart_add', {'id': offre.id}) }}" method="POST" id="offer-form">
 
                             {# LIGNE QUANTITÉ ET DURÉE #}
-                            <div class="row mb-4 text-center">
-                                <div class="col-6">
-                                    <label class="form-label fw-bold">Quantité :
-                                        <input type="number" name="quantite" class="form-control form-control-lg text-center" value="1" min="1" max="20">
-                                    </label>
+                            <div class="mb-4 text-center">
+                                <div>
+                                    <div class="d-flex flex-column align-items-center">
+                                        <label for="input-quantite-display" class="form-label fw-bold mb-2">Quantité</label>
+                                            <input type="number" id="input-quantite-display" name="quantite" class="form-control form-control-lg text-center w-75" value="1">
+                                    </div>
                                 </div>
-                                <div class="col-6">
-                                    <label class="form-label fw-bold" id="label-duree">Durée :
-                                        <input type="number" id="input-duree-display" class="form-control form-control-lg text-center" value="1" min="1" max="9">
-                                    </label>
-                                    {# C'est ce champ caché qui est envoyé au serveur #}
-                                    <input type="hidden" name="duree" id="input-duree-hidden" value="1">
+                                <div>
+                                    <div class="d-flex flex-column align-items-center">
+                                        <label class="form-label fw-bold mb-2" id="label-duree">Durée</label>
+                                        <div class="input-group w-75">
+                                            <label for="input-duree-display"></label>
+                                                <input type="number" id="input-duree-display" name="duree" class="form-control form-control-lg text-center" value="1">
+                                            <span class="input-group-text fw-bold" id="addon-duree">mois</span>
+                                        </div>
+                                        {# Champ caché pour le serveur #}
+                                        <input type="hidden" name="duree" id="input-duree-hidden" value="1">
+                                    </div>
                                 </div>
                             </div>
 
@@ -60,20 +66,19 @@
                                 </div>
                             </label>
 
-                            {# Option 2 : Annuel (Souvent on fait x10 au lieu de x12 pour offrir 2 mois) #}
+                            {# Option 2 : Annuel #}
                             <label class="w-100 mb-4 cursor-pointer">
-                                <input type="radio" name="duree" value="12" class="btn-check" autocomplete="off">
+                                <input type="radio" name="modeFacturation" id="radio-annuel" value="annuel" class="btn-check" autocomplete="off">
                                 <div class="card border-success border-2 h-100 option-card transition-all">
                                     <div class="card-header bg-success text-white text-center fw-bold py-1">
                                         ÉCONOMISEZ 16% (2 mois offerts)
                                     </div>
                                     <div class="card-body d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h5 class="mb-0 fw-bold">Engagement 1 an</h5>
-                                            <small class="text-muted">Paiement annuel</small>
+                                            <h5 class="mb-0 fw-bold">Engagement Annuel</h5>
+                                            <small class="text-muted">Paiement à l'année</small>
                                         </div>
                                         <div class="text-end">
-                                            {# Exemple de calcul : 10 mois payés au lieu de 12 #}
                                             <span class="fs-4 fw-bold text-success">{{ ((offre.prixMensuel * 10) / 100)|number_format(2, ',', ' ') }} €</span><br>
                                             <small class="text-muted">/ an</small>
                                         </div>

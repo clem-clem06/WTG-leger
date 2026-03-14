@@ -49,8 +49,8 @@ final class CartController extends AbstractController
             return $this->redirectToRoute('app_offer_show', ['id' => $offre->getId()]);
         }
 
-        // On interdit les mois farfelus comme 23 (soit 1 à 9, soit des multiples de 12)
-        if ($dureeChoisie < 1 || $dureeChoisie > 9) {
+        // On interdit les mois farfelus comme 23, mais on autorise 12, 24, 36...
+        if ($dureeChoisie < 1 || ($dureeChoisie > 9 && $dureeChoisie % 12 !== 0)) {
             $this->addFlash('danger', 'Durée invalide. Au-delà de 9 mois, veuillez utiliser la facturation annuelle.');
             return $this->redirectToRoute('app_offer_show', ['id' => $offre->getId()]);
         }
