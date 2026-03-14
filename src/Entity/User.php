@@ -54,6 +54,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Unite::class, mappedBy: 'locataire')]
     private Collection $unites;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $apiToken = null;
+
     public function getEmail(): ?string
     {
         return $this->email;
@@ -246,6 +249,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $unite->setLocataire(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getApiToken(): ?string
+    {
+        return $this->apiToken;
+    }
+
+    public function setApiToken(?string $apiToken): static
+    {
+        $this->apiToken = $apiToken;
 
         return $this;
     }
