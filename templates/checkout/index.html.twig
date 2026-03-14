@@ -12,20 +12,32 @@
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
                 <div class="card shadow-sm border-0 bg-light p-4">
-                    <h2 class="h4 fw-bold mb-4 text-center">Paiement Sécurisé</h2>
+                    <h2 class="h4 fw-bold mb-4 text-center">Paiement</h2>
 
-                    {% if savedCard %}
+                    {# SI L'UTILISATEUR A DES CARTES SAUVEGARDÉES #}
+                    {% if savedCards|length > 0 %}
                         <div class="alert alert-info shadow-sm">
-                            <h5 class="fw-bold mb-3"><i class="bi bi-credit-card"></i> Ma carte enregistrée</h5>
-                            <p class="mb-3 fs-5">
-                                **** **** **** <strong>{{ savedCard.last4 }}</strong><br>
-                                <small class="text-muted fs-6">Expire : {{ savedCard.expMonth }}/{{ savedCard.expYear }}</small>
-                            </p>
+                            <h5 class="fw-bold mb-3"><i class="bi bi-wallet2"></i> Mes cartes enregistrées</h5>
 
                             <form action="{{ path('app_checkout_process') }}" method="post" class="saved-payment-form">
-                                <input type="hidden" name="useSavedCard" value="1">
+
+                                <div class="list-group mb-3">
+                                    {% for card in savedCards %}
+                                        <label class="list-group-item d-flex gap-3 align-items-center cursor-pointer {% if loop.first %}bg-white{% else %}bg-light{% endif %}">
+                                            {# L'input qui envoie l'ID de la carte au contrôleur #}
+                                            <input class="form-check-input flex-shrink-0" type="radio" name="selectedCardId" id="card_{{ card.id }}" value="{{ card.id }}" {% if loop.first %}checked{% endif %}>
+                                            <span class="pt-1 form-checked-content w-100">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span><i class="bi bi-credit-card text-primary me-2"></i>**** **** **** <strong>{{ card.last4 }}</strong></span>
+                                                    <span class="text-muted small">Exp: {{ card.expMonth }}/{{ card.expYear }}</span>
+                                                </div>
+                                            </span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+
                                 <button type="submit" class="btn btn-success w-100 py-2 fw-bold btn-saved-pay">
-                                    <span class="saved-pay-text">Payer avec cette carte</span>
+                                    <span class="saved-pay-text">Payer avec la carte sélectionnée</span>
                                     <span class="spinner-border spinner-border-sm d-none saved-pay-spinner" role="status"></span>
                                 </button>
                             </form>

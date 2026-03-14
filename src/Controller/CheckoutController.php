@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_USER')]
-final class CheckoutController extends AbstractController
+Final class CheckoutController extends AbstractController
 {
     #[Route('/checkout', name: 'app_checkout')]
     public function index(CartRepository $cartRepository, EntityManagerInterface $em): Response
@@ -28,11 +28,12 @@ final class CheckoutController extends AbstractController
             return $this->redirectToRoute('app_cart');
         }
 
-        $savedCard = $em->getRepository(Card::class)->findOneBy(['user' => $user], ['id' => 'DESC']);
+        // findBy pour récupérer TOUTES les cartes de l'utilisateur
+        $savedCards = $em->getRepository(Card::class)->findBy(['user' => $user], ['id' => 'DESC']);
 
         return $this->render('checkout/index.html.twig', [
             'cart' => $cart,
-            'savedCard' => $savedCard, // On envoie la carte à la vue !
+            'savedCards' => $savedCards, // On envoie le tableau complet à la vue
         ]);
     }
 
@@ -51,15 +52,19 @@ final class CheckoutController extends AbstractController
         $last4 = null;
         $fakeBankToken = null;
 
-        $useSavedCard = $request->request->get('useSavedCard');
+        // On récupère l'ID de la carte sélectionnée
+        $selectedCardId = $request->request->get('selectedCardId');
 
-        if ($useSavedCard === "1") {
-            $card = $em->getRepository(Card::class)->findOneBy(['user' => $user], ['id' => 'DESC']);
+        if ($selectedCardId) {
+            // Le client veut payer avec l'une de ses cartes enregistrées
+            // Sécurité : on s'assure que la carte appartient bien à l'utilisateur connecté !
+            $card = $em->getRepository(Card::class)->findOneBy(['id' => $selectedCardId, 'user' => $user]);
             if ($card) {
                 $last4 = $card->getLast4();
                 $fakeBankToken = $card->getToken();
             }
         } else {
+            // Le client utilise une NOUVELLE carte
             $cardNumber = $request->request->get('cardNumber');
             $expDate = $request->request->get('expDate');
             $saveCard = $request->request->get('saveCard');
@@ -92,7 +97,7 @@ final class CheckoutController extends AbstractController
             }
         }
 
-        // 2. CRÉATION COMMANDE
+        // CRÉATION DE LA COMMANDE
         $total = 0;
         foreach ($cart->getCartItems() as $item) {
             $total += $item->getPrice() * $item->getQuantity();
@@ -123,7 +128,6 @@ final class CheckoutController extends AbstractController
         $em->persist($order);
         $em->persist($payment);
 
-        // 3. VIDER LE PANIER
         foreach ($cart->getCartItems() as $item) {
             $em->remove($item);
         }
