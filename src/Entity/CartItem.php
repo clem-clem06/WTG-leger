@@ -25,7 +25,10 @@ class CartItem
     private ?int $quantity = null;
 
     #[ORM\Column]
-    private ?int $price = null; // Prix au moment de l'ajout
+    private ?int $price = null;
+
+    #[ORM\Column]
+    private ?int $dureeMois = null; // Prix au moment de l'ajout
 
     public function getId(): ?int
     {
@@ -73,6 +76,18 @@ class CartItem
     public function setPrice(int $price): static
     {
         $this->price = $price;
+        return $this;
+    }
+
+    public function getDureeMois(): ?int
+    {
+        return $this->dureeMois;
+    }
+
+    public function setDureeMois(int $dureeMois): static
+    {
+        $this->dureeMois = $dureeMois;
+
         return $this;
     }
 }

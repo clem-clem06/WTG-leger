@@ -27,6 +27,9 @@ class OrderItem
     #[ORM\Column]
     private ?int $price = null;
 
+    #[ORM\Column]
+    private ?int $dureeMois = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -73,6 +76,18 @@ class OrderItem
     public function setPrice(int $price): static
     {
         $this->price = $price;
+        return $this;
+    }
+
+    public function getDureeMois(): ?int
+    {
+        return $this->dureeMois;
+    }
+
+    public function setDureeMois(int $dureeMois): static
+    {
+        $this->dureeMois = $dureeMois;
+
         return $this;
     }
 }
