@@ -48,6 +48,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Card::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $cards;
 
+    /**
+     * @var Collection<int, Unite>
+     */
+    #[ORM\OneToMany(targetEntity: Unite::class, mappedBy: 'locataire')]
+    private Collection $unites;
+
     public function getEmail(): ?string
     {
         return $this->email;
@@ -123,6 +129,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->carts = new ArrayCollection();
         $this->orders = new ArrayCollection();
         $this->cards = new ArrayCollection();
+        $this->unites = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -208,6 +215,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->cards->removeElement($card) && $card->getUser() === $this) {
             // set the owning side to null (unless already changed)
             $card->setUser(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Unite>
+     */
+    public function getUnites(): Collection
+    {
+        return $this->unites;
+    }
+
+    public function addUnite(Unite $unite): static
+    {
+        if (!$this->unites->contains($unite)) {
+            $this->unites->add($unite);
+            $unite->setLocataire($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUnite(Unite $unite): static
+    {
+        if ($this->unites->removeElement($unite)) {
+            // set the owning side to null (unless already changed)
+            if ($unite->getLocataire() === $this) {
+                $unite->setLocataire(null);
+            }
         }
 
         return $this;

@@ -32,6 +32,12 @@ class Unite
     #[ORM\JoinColumn(nullable: false)]
     private ?Baie $baie = null;
 
+    #[ORM\ManyToOne(inversedBy: 'unites')]
+    private ?User $locataire = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTime $dateFinLocation = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -105,6 +111,30 @@ class Unite
     public function setBaie(?Baie $baie): static
     {
         $this->baie = $baie;
+
+        return $this;
+    }
+
+    public function getLocataire(): ?User
+    {
+        return $this->locataire;
+    }
+
+    public function setLocataire(?User $locataire): static
+    {
+        $this->locataire = $locataire;
+
+        return $this;
+    }
+
+    public function getDateFinLocation(): ?\DateTime
+    {
+        return $this->dateFinLocation;
+    }
+
+    public function setDateFinLocation(?\DateTime $dateFinLocation): static
+    {
+        $this->dateFinLocation = $dateFinLocation;
 
         return $this;
     }
