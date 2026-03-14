@@ -7,6 +7,8 @@ use App\Entity\Order;
 use App\Entity\OrderItem;
 use App\Entity\Payment;
 use App\Repository\CartRepository;
+use App\Repository\UniteRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Random\RandomException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,12 +30,11 @@ Final class CheckoutController extends AbstractController
             return $this->redirectToRoute('app_cart');
         }
 
-        // findBy pour récupérer TOUTES les cartes de l'utilisateur
         $savedCards = $em->getRepository(Card::class)->findBy(['user' => $user], ['id' => 'DESC']);
 
         return $this->render('checkout/index.html.twig', [
             'cart' => $cart,
-            'savedCards' => $savedCards, // On envoie le tableau complet à la vue
+            'savedCards' => $savedCards,
         ]);
     }
 
@@ -41,7 +42,7 @@ Final class CheckoutController extends AbstractController
      * @throws RandomException
      */
     #[Route('/checkout/process', name: 'app_checkout_process', methods: ['POST'])]
-    public function process(Request $request, CartRepository $cartRepository, EntityManagerInterface $em): Response
+    public function process(Request $request, CartRepository $cartRepository, UniteRepository $uniteRepository, EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
         $cart = $cartRepository->findOneBy(['user' => $user]);
@@ -52,19 +53,15 @@ Final class CheckoutController extends AbstractController
         $last4 = null;
         $fakeBankToken = null;
 
-        // On récupère l'ID de la carte sélectionnée
         $selectedCardId = $request->request->get('selectedCardId');
 
         if ($selectedCardId) {
-            // Le client veut payer avec l'une de ses cartes enregistrées
-            // Sécurité : on s'assure que la carte appartient bien à l'utilisateur connecté !
             $card = $em->getRepository(Card::class)->findOneBy(['id' => $selectedCardId, 'user' => $user]);
             if ($card) {
                 $last4 = $card->getLast4();
                 $fakeBankToken = $card->getToken();
             }
         } else {
-            // Le client utilise une NOUVELLE carte
             $cardNumber = $request->request->get('cardNumber');
             $expDate = $request->request->get('expDate');
             $saveCard = $request->request->get('saveCard');
@@ -97,7 +94,9 @@ Final class CheckoutController extends AbstractController
             }
         }
 
-        // CRÉATION DE LA COMMANDE
+        // ==========================================
+        // 1. CRÉATION COMMANDE
+        // ==========================================
         $total = 0;
         foreach ($cart->getCartItems() as $item) {
             $total += $item->getPrice() * $item->getQuantity();
@@ -128,12 +127,43 @@ Final class CheckoutController extends AbstractController
         $em->persist($order);
         $em->persist($payment);
 
+        // ==========================================
+        // 2. NOUVEAU : ATTRIBUTION DES UNITÉS !
+        // ==========================================
+        $totalUnitesAchetees = 0;
+        foreach ($cart->getCartItems() as $item) {
+            // On multiplie le nb d'unités de l'offre par la quantité choisie au panier
+            $totalUnitesAchetees += $item->getOffre()->getNombreUnites() * $item->getQuantity();
+        }
+
+        // On cherche des unités disponibles en BDD (locataire est NULL).
+        // Le 3ème paramètre de findBy sert à limiter le nombre de résultats (on prend juste ce qu'il faut)
+        $unitesDisponibles = $uniteRepository->findBy(['locataire' => null], null, $totalUnitesAchetees);
+
+        // Si quelqu'un a privatisé tout le datacenter entre temps et qu'il manque de la place :
+        if (count($unitesDisponibles) < $totalUnitesAchetees) {
+            $this->addFlash('danger', 'Désolé, il n\'y a plus assez d\'unités disponibles dans notre datacenter pour honorer votre commande.');
+            return $this->redirectToRoute('app_cart');
+        }
+
+        // On définit la date de fin d'abonnement (ex: abonnement mensuel = + 1 mois)
+        $dateFin = new DateTime('+1 month');
+
+        foreach ($unitesDisponibles as $unite) {
+            $unite->setLocataire($user);
+            $unite->setDateFinLocation($dateFin);
+            $em->persist($unite);
+        }
+
+        // ==========================================
+        // 3. VIDER LE PANIER
+        // ==========================================
         foreach ($cart->getCartItems() as $item) {
             $em->remove($item);
         }
         $em->flush();
 
-        $this->addFlash('success', 'Paiement simulé réussi !');
-        return $this->redirectToRoute('app_home');
+        $this->addFlash('success', 'Paiement simulé réussi ! Vos unités ont été attribuées.');
+        return $this->redirectToRoute('app_home'); // On pourra rediriger vers l'espace client plus tard !
     }
 }
