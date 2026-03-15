@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Unite;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\LockMode;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -52,6 +53,19 @@ class UniteRepository extends ServiceEntityRepository
             ->leftJoin('u.locataire', 'l')
             ->addSelect('l')
             ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Récupère des unités disponibles et les VERROUILLE pour éviter les conflits (Race Condition)
+     */
+    public function findAndLockAvailableUnites(int $limit): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.locataire IS NULL')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->setLockMode(LockMode::PESSIMISTIC_WRITE)
             ->getResult();
     }
 }

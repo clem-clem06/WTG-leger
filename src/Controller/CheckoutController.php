@@ -9,7 +9,9 @@ use App\Entity\Payment;
 use App\Repository\CartRepository;
 use App\Repository\UniteRepository;
 use DateMalformedStringException;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Random\RandomException;
@@ -66,8 +68,8 @@ Final class CheckoutController extends AbstractController
             }
         } else {
             // On force en string pour éviter les erreurs si c'est null
-            $cardNumber = (string) $request->request->get('cardNumber', '');
-            $expDate = (string) $request->request->get('expDate', '');
+            $cardNumber = (string)$request->request->get('cardNumber', '');
+            $expDate = (string)$request->request->get('expDate', '');
             $saveCard = $request->request->get('saveCard');
 
             $cleanCardNumber = str_replace(' ', '', $cardNumber);
@@ -108,11 +110,11 @@ Final class CheckoutController extends AbstractController
             // Ça ne peut plus jamais exploser ici !
             if (str_contains($cleanExpDate, '/')) {
                 $dateParts = explode('/', $cleanExpDate);
-                $expMonth = (int) $dateParts[0];
-                $expYear = (int) $dateParts[1];
+                $expMonth = (int)$dateParts[0];
+                $expYear = (int)$dateParts[1];
             } else {
-                $expMonth = (int) substr($cleanExpDate, 0, 2);
-                $expYear = (int) substr($cleanExpDate, 2, 2);
+                $expMonth = (int)substr($cleanExpDate, 0, 2);
+                $expYear = (int)substr($cleanExpDate, 2, 2);
             }
 
             $fakeBankToken = 'tok_simul_' . bin2hex(random_bytes(8));
@@ -163,44 +165,58 @@ Final class CheckoutController extends AbstractController
         $em->persist($payment);
 
         // ==========================================
-        // 2. ATTRIBUTION DES UNITÉS (Géré article par article)
+        // 2. ATTRIBUTION DES UNITÉS
         // ==========================================
-        foreach ($cart->getCartItems() as $item) {
 
-            // 1. Combien d'unités sont nécessaires pour CET article précis ?
-            $unitesRequises = $item->getOffre()->getNombreUnites() * $item->getQuantity();
+        // On démarre explicitement une transaction SQL
+        $em->beginTransaction();
 
-            // 2. Quelle est la durée pour CET article ?
-            $dureeMois = $item->getDureeMois();
-            $dateFin = new \DateTime('+' . $dureeMois . ' months');
+        try {
+            foreach ($cart->getCartItems() as $item) {
+                $unitesRequises = $item->getOffre()->getNombreUnites() * $item->getQuantity();
+                $dureeMois = $item->getDureeMois();
+                $dateFin = new DateTime('+' . $dureeMois . ' months');
 
-            // 3. On cherche des unités disponibles juste pour cet article
-            $unitesDisponibles = $uniteRepository->findBy(['locataire' => null], null, $unitesRequises);
+                $unitesDisponibles = $uniteRepository->findAndLockAvailableUnites($unitesRequises);
 
-            // Vérification anti-rupture de stock
-            if (count($unitesDisponibles) < $unitesRequises) {
-                $this->addFlash('danger', 'Désolé, il manque des unités disponibles pour honorer votre offre ' . $item->getOffre()->getNom());
-                return $this->redirectToRoute('app_cart');
+                // S'il n'y a plus assez de stock, on lève une exception pour annuler la transaction !
+                if (count($unitesDisponibles) < $unitesRequises) {
+                    $em->rollback();
+
+                    $this->addFlash('danger', 'Désolé, un autre client vient de réserver les dernières unités de l\'offre ' . $item->getOffre()->getNom());
+
+                    return $this->redirectToRoute('app_cart');
+                }
+
+                foreach ($unitesDisponibles as $unite) {
+                    $unite->setLocataire($user);
+                    $unite->setDateFinLocation($dateFin);
+                    $em->persist($unite);
+                }
+
+                $em->flush();
             }
 
-            // 4. On attribue ces unités au client
-            foreach ($unitesDisponibles as $unite) {
-                $unite->setLocataire($user);
-                $unite->setDateFinLocation($dateFin); // La date exacte pour cet article !
-                $em->persist($unite);
+            // ==========================================
+            // 3. VIDER LE PANIER
+            // ==========================================
+            foreach ($cart->getCartItems() as $item) {
+                $em->remove($item);
             }
             $em->flush();
-        }
 
-        // ==========================================
-        // 3. VIDER LE PANIER
-        // ==========================================
-        foreach ($cart->getCartItems() as $item) {
-            $em->remove($item);
-        }
-        $em->flush();
+            $em->commit();
 
-        $this->addFlash('success', 'Paiement réussi ! Vos unités ont été attribuées.');
-        return $this->redirectToRoute('app_home'); //TODO: On pourra rediriger vers l'espace client plus tard !
+            $this->addFlash('success', 'Paiement simulé réussi ! Vos unités ont été attribuées et sécurisées.');
+            return $this->redirectToRoute('app_home'); //TODO: On pourra rediriger vers l'espace client plus tard !
+
+        } catch (Exception) {
+            // SI QUELQUE CHOSE PLANTE (Rupture de stock, etc.)
+            // On annule ABSOLUMENT TOUT (y compris la commande et le paiement qu'on avait persistés plus haut)
+            $em->rollback();
+
+            $this->addFlash('danger', 'Une erreur technique inattendue est survenue.');
+            return $this->redirectToRoute('app_cart');
+        }
     }
 }
