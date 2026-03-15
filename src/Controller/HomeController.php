@@ -12,11 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class HomeController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
-    public function index(
-        OffreRepository $offreRepository,
-        BaieRepository $baieRepository,
-        UniteRepository $uniteRepository
-    ): Response {
+    public function index(OffreRepository $offreRepository, BaieRepository $baieRepository, UniteRepository $uniteRepository): Response {
         // 1. Récupérer les offres
         $offres = $offreRepository->findAll();
 
@@ -24,8 +20,8 @@ final class HomeController extends AbstractController
         $totalBaies = $baieRepository->count();
         $totalUnites = $uniteRepository->count();
 
-        // On considère qu'une unité est disponible si elle n'a pas encore de nom défini par un client
-        $unitesDispo = $uniteRepository->count(['nom' => null]);
+        // Une unité est dispo si son champ 'locataire' est vide (NULL en base de données)
+        $unitesDispo = $uniteRepository->count(['locataire' => null]);
 
         return $this->render('home/index.html.twig', [
             'offres' => $offres,
