@@ -31,7 +31,11 @@ final class CartController extends AbstractController
 
         try {
             $cartService->addToCart($offre, $quantite, $duree);
-            $this->addFlash('success', "$quantite offre(s) ajoutée(s) pour $duree mois !");
+            if ($quantite > 1) {
+                $this->addFlash('success', "$quantite offre(s) ajoutée(s) pour $duree mois !");
+            } else {
+                $this->addFlash('success', "$quantite offres ajoutées pour $duree mois !");
+            }
         } catch (InvalidArgumentException $e) {
             $this->addFlash('danger', $e->getMessage());
         }
