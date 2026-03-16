@@ -1,5 +1,6 @@
-(function() {
-    function initOfferForm() {
+//(function() {
+//    function initOfferForm() {
+document.addEventListener('turbo:load', function() {
     // 1. FORMATTAGE DU NUMÉRO DE CARTE (espaces auto)
     const ccInput = document.querySelector('.cc-input');
     if (ccInput) {
@@ -45,7 +46,7 @@
             document.querySelector('.saved-pay-spinner').classList.remove('d-none');
             setTimeout(() => savedForm.submit(), 1500);
         });}
-    }
-initOfferForm();
-document.addEventListener('turbo:load', initOfferForm);
+//    }
+//    initOfferForm();
+//    document.addEventListener('turbo:load', initOfferForm);
 });

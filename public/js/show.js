@@ -1,5 +1,6 @@
-(function() {
-    function initOfferForm() {
+//(function() {
+//    function initOfferForm() {
+document.addEventListener('turbo:load', function() {
     const form = document.getElementById('offer-form');
     if (!form) return;
 
@@ -83,7 +84,7 @@
 
     // Initialisation au chargement de la page
     updateMode();
-    }
-    initOfferForm();
-    document.addEventListener('turbo:load', initOfferForm);
+//    }
+//    initOfferForm();
+//    document.addEventListener('turbo:load', initOfferForm);
 });
