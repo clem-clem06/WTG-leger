@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\CartItem;
 use App\Entity\Offre;
+use App\Form\AddToCartType;
 use App\Service\CartService;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,18 +27,26 @@ final class CartController extends AbstractController
     #[Route('/cart/add/{id}', name: 'app_cart_add', methods: ['POST'])]
     public function add(Offre $offre, Request $request, CartService $cartService): Response
     {
-        $duree = (int) $request->request->get('duree', 1);
-        $quantite = (int) $request->request->get('quantite', 1);
+        $form = $this->createForm(AddToCartType::class);
+        $form->handleRequest($request);
 
-        try {
-            $cartService->addToCart($offre, $quantite, $duree);
-            if ($quantite > 1) {
-                $this->addFlash('success', "$quantite offres ajoutées pour $duree mois !");
-            } else {
-                $this->addFlash('success', "$quantite offre ajoutée pour $duree mois !");
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $duree = $data['duree'];
+            $quantite = $data['quantite'];
+
+            try {
+                $cartService->addToCart($offre, $quantite, $duree);
+                if ($quantite > 1) {
+                    $this->addFlash('success', "$quantite offre) ajoutées pour $duree mois !");
+                } else {
+                    $this->addFlash('success', "$quantite offres ajoutées pour $duree mois !");
+                }
+            } catch (InvalidArgumentException $e) {
+                $this->addFlash('danger', $e->getMessage());
             }
-        } catch (InvalidArgumentException $e) {
-            $this->addFlash('danger', $e->getMessage());
+        } else {
+            $this->addFlash('danger', 'Données saisies invalides.');
         }
 
         return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_offer_show', ['id' => $offre->getId()]));
