@@ -1,6 +1,4 @@
-//(function() {
-//    function initOfferForm() {
-document.addEventListener('turbo:load', function() {
+function initAuthenticator() {
     // On déclare nos Regex une seule fois tout en haut, elles servent pour les 2 formulaires
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -118,7 +116,6 @@ document.addEventListener('turbo:load', function() {
                 validateLoginForm();
             }
         }
-//    }
-//initOfferForm();
-//document.addEventListener('turbo:load', initOfferForm);
-});
+    }
+initOfferForm();
+document.addEventListener('turbo:load', initOfferForm);

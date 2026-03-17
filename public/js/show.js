@@ -1,11 +1,9 @@
-(function() {
+function initOfferForm() {
+    const form = document.getElementById('offer-form');
 
-    if (window.hasShowJsInitialized) return;
-    window.hasShowJsInitialized = true;
+    if (!form || form.dataset.initialized) return;
 
-    function initOfferForm() {
-        const form = document.getElementById('offer-form');
-        if (!form) return;
+    form.dataset.initialized = 'true';
 
         const radioMensuel = document.getElementById('radio-mensuel');
         const radioAnnuel = document.getElementById('radio-annuel');
@@ -93,7 +91,6 @@
         updateMode();
     }
 
-    initOfferForm();
+initOfferForm();
 
-    document.addEventListener('turbo:load', initOfferForm);
-})();
+document.addEventListener('turbo:load', initOfferForm);

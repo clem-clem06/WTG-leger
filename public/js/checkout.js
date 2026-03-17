@@ -1,9 +1,9 @@
-(function() {
+function initCheckoutForm() {
+    const paymentForm = document.getElementById('payment-form');
 
-    if (window.hasShowJsInitialized) return;
-    window.hasShowJsInitialized = true;
+    if (!paymentForm || paymentForm.dataset.initialized) return;
 
-    function initOfferForm() {
+    paymentForm.dataset.initialized = 'true';
 
         // On récupère tous nos éléments
         const ccInput = document.getElementById('checkout_cardNumber');
@@ -12,7 +12,6 @@
         const submitBtn = document.getElementById('submit-btn');
         const hiddenInput = document.getElementById('hidden-selected-card');
         const radios = document.querySelectorAll('.card-selector');
-        const paymentForm = document.getElementById('payment-form');
 
         function checkFormValidity() {
             if (!submitBtn) return;
@@ -96,8 +95,5 @@
             });
         }
     }
-
-        initOfferForm();
-
-        document.addEventListener('turbo:load', initOfferForm);
-    })();
+initCheckoutForm();
+document.addEventListener('turbo:load', initCheckoutForm);
