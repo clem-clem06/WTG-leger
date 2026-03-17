@@ -7,8 +7,10 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Random\RandomException;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\Collection;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 readonly class PaymentService
@@ -22,9 +24,9 @@ readonly class PaymentService
      * Renvoie un tableau : [string $fakeBankToken, string $last4]
      * @throws RandomException
      */
-    public function processCard(Request $request, User $user): array
+    public function processCard(array $data, User $user): array
     {
-        $selectedCardId = $request->request->get('selectedCardId');
+        $selectedCardId = $data['selectedCardId']?? '';
 
         // 1. Si l'utilisateur a choisi une carte sauvegardée
         if ($selectedCardId) {
@@ -35,19 +37,19 @@ readonly class PaymentService
         }
 
         // 2. Si c'est une nouvelle carte saisie à la main
-        $cardNumber = (string)$request->request->get('cardNumber', '');
-        $expDate = (string)$request->request->get('expDate', '');
+        $cardNumber = $data['cardNumber'] ?? '';
+        $expDate = $data['expDate'] ?? '';
 
         $cleanCardNumber = str_replace(' ', '', $cardNumber);
         $cleanExpDate = str_replace(' ', '', $expDate);
 
         // Validation stricte
-        $constraints = new Assert\Collection([
+        $constraints = new Collection([
             'cardNumber' => [
-                new Assert\NotBlank(message: 'Le numéro de carte est obligatoire.'),
-                new Assert\Length(min: 14, max: 19, minMessage: 'Numéro de carte trop court.')
+                new NotBlank(message: 'Le numéro de carte est obligatoire.'),
+                new Length(min: 14, max: 19, minMessage: 'Numéro de carte trop court.')
             ],
-            'expDate' => new Assert\Regex(
+            'expDate' => new Regex(
                 pattern: '/^(0[1-9]|1[0-2])\/?([0-9]{2})$/',
                 message: 'Format de date d\'expiration invalide (MM/AA ou MMAA).'
             )
@@ -64,10 +66,12 @@ readonly class PaymentService
         }
 
         $last4 = substr($cleanCardNumber, -4);
-        $fakeBankToken = 'tok_simul_' . bin2hex(random_bytes(8));
+        $fakeBankToken = 'tok_simul_' . bin2hex(random_bytes(16));
 
         // 3. Sauvegarde de la carte si la case est cochée
-        if ($request->request->get('saveCard') === "1") {
+        $saveCard = $data['saveCard'] ?? false;
+
+        if ($saveCard) {
             if (str_contains($cleanExpDate, '/')) {
                 $dateParts = explode('/', $cleanExpDate);
                 $expMonth = (int)$dateParts[0];

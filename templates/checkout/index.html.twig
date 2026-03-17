@@ -8,84 +8,130 @@
 {% endblock %}
 
 {% block body %}
+    {# Petit calcul du total du panier pour l'affichage du bouton #}
+    {% set total = 0 %}
+    {% for item in cart.cartItems %}
+        {% set total = total + (item.price * item.quantity) %}
+    {% endfor %}
+
     <div class="container py-5 mb-5">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
-                <div class="card shadow-sm border-0 bg-light p-4">
+                <div class="card shadow-sm border-0 bg-light p-4 rounded-4">
                     <h2 class="h4 fw-bold mb-4 text-center">Paiement</h2>
 
-                    {# SI L'UTILISATEUR A DES CARTES SAUVEGARDÉES #}
+                    {# 1. DÉMARRAGE DU FORMULAIRE UNIQUE SYMFONY #}
+                    {{ form_start(checkoutForm, {'attr': {'id': 'payment-form', 'novalidate': 'novalidate'}}) }}
+
+                    {# Le champ caché qui va contenir l'ID de la carte choisie #}
+                    {{ form_widget(checkoutForm.selectedCardId, {'id': 'hidden-selected-card'}) }}
+
+                    {# ========================================== #}
+                    {# PARTIE 1 : LES CARTES SAUVEGARDÉES         #}
+                    {# ========================================== #}
                     {% if savedCards|length > 0 %}
-                        <div class="alert alert-info shadow-sm">
+                        <div class="alert alert-info shadow-sm rounded-3">
                             <h5 class="fw-bold mb-3"><i class="bi bi-wallet2"></i> Mes cartes enregistrées</h5>
 
-                            <form action="{{ path('app_checkout_process') }}" method="post" class="saved-payment-form">
-
-                                <div class="list-group mb-3">
-                                    {% for card in savedCards %}
-                                        <label class="list-group-item d-flex gap-3 align-items-center cursor-pointer {% if loop.first %}bg-white{% else %}bg-light{% endif %}">
-                                            {# L'input qui envoie l'ID de la carte au contrôleur #}
-                                            <input class="form-check-input flex-shrink-0" type="radio" name="selectedCardId" id="card_{{ card.id }}" value="{{ card.id }}" {% if loop.first %}checked{% endif %}>
-                                            <span class="pt-1 form-checked-content w-100">
+                            <div class="list-group mb-0">
+                                {% for card in savedCards %}
+                                    <label class="list-group-item d-flex gap-3 align-items-center cursor-pointer bg-white">
+                                        <input class="form-check-input flex-shrink-0 card-selector" type="radio" name="card_selection" value="{{ card.id }}">
+                                        <span class="pt-1 form-checked-content w-100">
                                                 <div class="d-flex justify-content-between align-items-center">
-                                                    <span><i class="bi bi-credit-card text-primary me-2"></i>**** **** **** <strong>{{ card.last4 }}</strong></span>
+                                                    <span><i class="fas fa-credit-card text-primary me-2"></i>**** **** **** <strong>{{ card.last4 }}</strong></span>
                                                     <span class="text-muted small">Exp: {{ card.expMonth }}/{{ card.expYear }}</span>
                                                 </div>
                                             </span>
-                                        </label>
-                                    {% endfor %}
-                                </div>
+                                    </label>
+                                {% endfor %}
 
-                                <button type="submit" class="btn btn-success w-100 py-2 fw-bold btn-saved-pay">
-                                    <span class="saved-pay-text">Payer avec la carte sélectionnée</span>
-                                    <span class="spinner-border spinner-border-sm d-none saved-pay-spinner" role="status"></span>
-                                </button>
-                            </form>
+                                {# L'option pour forcer la saisie d'une NOUVELLE carte #}
+                                <label class="list-group-item d-flex gap-3 align-items-center cursor-pointer bg-light">
+                                    <input class="form-check-input flex-shrink-0 card-selector" type="radio" name="card_selection" value="" checked>
+                                    <span class="fw-bold">Utiliser une autre carte</span>
+                                </label>
+                            </div>
                         </div>
-
-                        <div class="text-center my-4 text-muted fw-bold">OU</div>
                     {% endif %}
 
-                    <form action="{{ path('app_checkout_process') }}" method="post" id="new-payment-form">
-                        <div class="mb-3">
-                            <label class="form-label">Nom sur la carte
-                                <input type="text" class="form-control" value="{{ app.user.userIdentifier }}" required>
-                            </label>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Numéro de carte
-                                <input type="text" name="cardNumber" class="form-control cc-input" placeholder="0000 0000 0000 0000" maxlength="19" required>
-                            </label>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-6">
-                                <label class="form-label">Expiration (MM/YY)
-                                    <input type="text" name="expDate" class="form-control exp-input" placeholder="12/28" maxlength="5" required>
-                                </label>
+                    {# ========================================== #}
+                    {# PARTIE 2 : SAISIE D'UNE NOUVELLE CARTE     #}
+                    {# ========================================== #}
+                    <div id="new-card-section" class="mt-4">
+                        <div class="mb-4">
+                            {{ form_label(checkoutForm.cardNumber, 'Numéro de carte', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-white border-end-0"><i class="fas fa-credit-card text-muted"></i></span>
+                                {{ form_widget(checkoutForm.cardNumber, {'attr': {'class': 'form-control bg-white border-start-0'}}) }}
                             </div>
+                            <div class="text-danger small mt-1 fw-bold">{{ form_errors(checkoutForm.cardNumber) }}</div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
                             <div class="col-6">
-                                <label class="form-label">CVC
-                                    <input type="text" class="form-control" placeholder="123" maxlength="3" required>
-                                </label>
+                                {{ form_label(checkoutForm.expDate, 'Date d\'expiration', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-calendar-alt text-muted"></i></span>
+                                    {{ form_widget(checkoutForm.expDate, {'attr': {'class': 'form-control bg-white border-start-0'}}) }}
+                                </div>
+                                <div class="text-danger small mt-1 fw-bold">{{ form_errors(checkoutForm.expDate) }}</div>
+                            </div>
+
+                            <div class="col-6">
+                                {{ form_label(checkoutForm.cvv, 'Code (CVV)', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-lock text-muted"></i></span>
+                                    {{ form_widget(checkoutForm.cvv, {'attr': {'class': 'form-control bg-white border-start-0'}}) }}
+                                </div>
+                                <div class="text-danger small mt-1 fw-bold">{{ form_errors(checkoutForm.cvv) }}</div>
                             </div>
                         </div>
 
-                        <div class="form-check mb-4">
-                            <input class="form-check-input" type="checkbox" name="saveCard" id="saveCard" value="1" checked>
-                            <label class="form-check-label text-muted small" for="saveCard">
-                                Mémoriser cette carte de manière sécurisée
-                            </label>
+                        <div class="mb-4 form-check mt-3">
+                            {{ form_widget(checkoutForm.saveCard, {'attr': {'class': 'form-check-input border-secondary'}}) }}
+                            {{ form_label(checkoutForm.saveCard, null, {'label_attr': {'class': 'form-check-label fw-semibold text-dark'}}) }}
                         </div>
+                    </div>
 
-                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-5 btn-new-pay">
-                            <span class="new-pay-text">Confirmer le paiement</span>
-                            <span class="spinner-border spinner-border-sm d-none new-pay-spinner" role="status"></span>
+                    {# ========================================== #}
+                    {# BOUTON DE SOUMISSION UNIQUE                #}
+                    {# ========================================== #}
+                    <div class="d-grid mt-4">
+                        <button type="submit" id="submit-btn" class="btn btn-dark btn-lg rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center">
+                            <span id="submit-text"><i class="fas fa-lock me-2"></i>Payer {{ total|number_format(2, ',', ' ') }} €</span>
                         </button>
-                    </form>
+                    </div>
+
+                    {{ form_end(checkoutForm) }}
+
                 </div>
             </div>
         </div>
     </div>
+
+    {# Petit script pour gérer l'affichage de la nouvelle carte vs carte sauvegardée #}
+    <script>
+        document.addEventListener('turbo:load', function() {
+            const radios = document.querySelectorAll('.card-selector');
+            const hiddenInput = document.getElementById('hidden-selected-card');
+            const newCardSection = document.getElementById('new-card-section');
+
+            if (radios.length > 0) {
+                radios.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        // On met l'ID de la carte dans le champ caché Symfony
+                        hiddenInput.value = this.value;
+
+                        // Si l'utilisateur a choisi une ancienne carte (value n'est pas vide)
+                        if (this.value !== '') {
+                            newCardSection.style.display = 'none'; // On cache le formulaire de saisie
+                        } else {
+                            newCardSection.style.display = 'block'; // On affiche le formulaire de saisie
+                        }
+                    });
+                });
+            }
+        });
+    </script>
 {% endblock %}
