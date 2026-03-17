@@ -64,7 +64,7 @@ final class CheckoutController extends AbstractController
 
             // Si aucune erreur n'a explosé, c'est un succès !
             $this->addFlash('success', 'Paiement réussi ! Vos unités ont été attribuées.');
-            return $this->redirectToRoute('app_home'); // TODO: rediriger vers espace client
+            return $this->redirectToRoute('app_customer');
 
         } catch (InvalidArgumentException $e) {
             // 1. ERREUR DE CARTE -> MESSAGE SAFE

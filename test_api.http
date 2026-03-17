@@ -9,6 +9,7 @@ Authorization: Bearer WTG-SECRET-KEY-2026
 #
 #{
 #    "type": "incident",
+#    "etat": "en panne",
 #    "description": "Coupure électrique détectée sur la rangée A. Redémarrage manuel nécessaire.",
-#    "unites_ids": [1, 2]
+#    "unites_affectees": [7, 8]
 #}

@@ -67,6 +67,7 @@ final class ApiController extends AbstractController
 
             $data[] = [
                 'id' => $intervention->getId(),
+                'etat' => $intervention->getEtat(),
                 'type' => $intervention->getType(),
                 'description' => $intervention->getDescription(),
                 'dateDebut' => $intervention->getDateDebut()?->format('Y-m-d H:i:s'),

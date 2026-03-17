@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Intervention;
 use App\Repository\UniteRepository;
+use DateMalformedStringException;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use DomainException;
@@ -17,25 +18,33 @@ readonly class InterventionService
 
     /**
      * Valide le JSON et crée la panne dans le Datacenter
+     * @throws DateMalformedStringException
      */
     public function createIntervention(array $jsonData): Intervention
     {
         // 1. Le Vigile
-        if (!isset($jsonData['type'], $jsonData['description'], $jsonData['unites_ids']) || !is_array($jsonData['unites_ids'])) {
-            throw new InvalidArgumentException('Données invalides. Les champs "type", "description" et "unites_ids" (tableau) sont obligatoires.');
+        if (!isset($jsonData['type'], $jsonData['etat'], $jsonData['description'], $jsonData['unites_affectees']) || !is_array($jsonData['unites_affectees'])) {
+            throw new InvalidArgumentException('Données invalides. Les champs"etat", "type", "description" et "unites_affectees" (tableau) sont obligatoires.');
         }
 
         // 2. Création
         $intervention = new Intervention();
         $intervention->setType($jsonData['type']);
         $intervention->setDescription($jsonData['description']);
-        $intervention->setDateDebut(new DateTime());
+        $intervention->setEtat($jsonData['etat']);
+
+        if (isset($jsonData['dateDebut'])) {
+            $intervention->setDateDebut(new DateTime($jsonData['dateDebut']));
+        } else {
+            $intervention->setDateDebut(new DateTime());
+        }
 
         // 3. Liaison avec les serveurs en panne
-        foreach ($jsonData['unites_ids'] as $uniteId) {
+        foreach ($jsonData['unites_affectees'] as $uniteId) {
             $unite = $this->uniteRepository->find($uniteId);
             if ($unite) {
                 $intervention->addUnite($unite);
+                $unite->setEtat($jsonData['etat']);
             }
         }
 

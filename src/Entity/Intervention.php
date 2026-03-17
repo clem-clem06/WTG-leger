@@ -34,6 +34,9 @@ class Intervention
     #[ORM\ManyToMany(targetEntity: Unite::class, inversedBy: 'interventions')]
     private Collection $unites;
 
+    #[ORM\Column(length: 255)]
+    private ?string $etat = null;
+
     public function __construct()
     {
         $this->unites = new ArrayCollection();
@@ -112,6 +115,18 @@ class Intervention
     public function removeUnite(Unite $unite): static
     {
         $this->unites->removeElement($unite);
+
+        return $this;
+    }
+
+    public function getEtat(): ?string
+    {
+        return $this->etat;
+    }
+
+    public function setEtat(string $etat): static
+    {
+        $this->etat = $etat;
 
         return $this;
     }

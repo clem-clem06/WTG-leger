@@ -37,7 +37,7 @@ readonly class CheckoutService
             $order = new Order();
             $order->setUser($user);
             $order->setTotal($total);
-            $order->setStatus('pending');
+            $order->setStatus('payée');
 
             foreach ($cart->getCartItems() as $item) {
                 $orderItem = new OrderItem();

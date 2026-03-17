@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UniteRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UniteRepository::class)]
@@ -37,6 +39,17 @@ class Unite
 
     #[ORM\Column(nullable: true)]
     private ?\DateTime $dateFinLocation = null;
+
+    /**
+     * @var Collection<int, Intervention>
+     */
+    #[ORM\ManyToMany(targetEntity: Intervention::class, mappedBy: 'unites')]
+    private Collection $interventions;
+
+    public function __construct()
+    {
+        $this->interventions = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -135,6 +148,30 @@ class Unite
     public function setDateFinLocation(?\DateTime $dateFinLocation): static
     {
         $this->dateFinLocation = $dateFinLocation;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Intervention>
+     */
+    public function getInterventions(): Collection
+    {
+        return $this->interventions;
+    }
+
+    public function addIntervention(Intervention $intervention): static
+    {
+        if (!$this->interventions->contains($intervention)) {
+            $this->interventions->add($intervention);
+        }
+
+        return $this;
+    }
+
+    public function removeIntervention(Intervention $intervention): static
+    {
+        $this->interventions->removeElement($intervention);
 
         return $this;
     }

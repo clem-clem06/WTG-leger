@@ -1,0 +1,203 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Espace Client - WorkTogether{% endblock %}
+
+{% block body %}
+    <div class="container py-5 mb-5">
+
+        {# En-tête de la page #}
+        <div class="row mb-4 align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold text-primary mb-2">Mon Tableau de Bord</h1>
+                <p class="lead text-muted mb-0">Bienvenue dans votre espace client, <strong>{{ user.email }}</strong>.</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{{ path('app_home') }}" class="btn btn-outline-primary rounded-pill px-4 shadow-sm">
+                    <i class="fas fa-server me-2"></i>Louer des unités
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 rounded-4 h-100">
+                    <div class="card-header bg-primary text-white p-4 rounded-top-4">
+                        <h4 class="mb-0 fw-bold"><i class="fas fa-user-circle me-2"></i>Mes Informations</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Email</span>
+                                <span class="fw-bold">{{ user.email }}</span>
+                            </li>
+                            <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Statut</span>
+                                <span class="badge bg-success">Actif</span>
+                            </li>
+                            <li class="list-group-item px-0 d-flex justify-content-between align-items-center border-bottom-0">
+                                <span class="text-muted">Mot de passe</span>
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill">Modifier</button>
+{#                                TODO : faire le form#}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 rounded-4 h-100">
+                    <div class="card-header bg-dark text-white p-4 rounded-top-4">
+                        <h4 class="mb-0 fw-bold"><i class="fas fa-receipt me-2"></i>Historique de facturation</h4>
+                    </div>
+                    <div class="card-body p-4">
+
+                        {% if user.orders is defined and user.orders|length > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th class="py-3">N° Commande</th>
+                                        <th class="py-3">Montant</th>
+                                        <th class="py-3">Statut</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for order in user.orders %}
+                                        <tr>
+                                            <td class="fw-bold">#{{ order.id }}</td>
+                                            <td class="fw-bold">{{ order.total|number_format(2, ',', ' ') }} €</td>
+                                            <td>
+                                                {% if order.status|lower == 'completed' or order.status|lower == 'payée' %}
+                                                    <span class="badge bg-success">Payée</span>
+                                                {% elseif order.status|lower == 'pending' %}
+                                                    <span class="badge bg-warning text-dark">En attente</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ order.status }}</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-box-open fs-1 text-muted mb-3"></i>
+                                <h5>Aucune commande trouvée</h5>
+                                <p class="text-muted">Vous n'avez pas encore de factures à votre actif.</p>
+                                <a href="{{ path('app_home') }}" class="btn btn-primary mt-2 rounded-pill shadow-sm">Découvrir nos offres</a>
+                            </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mt-4">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-header bg-info text-white p-4 rounded-top-4">
+                        <h4 class="mb-0 fw-bold"><i class="fas fa-network-wired me-2"></i>Mes Serveurs & Interventions</h4>
+                    </div>
+                    <div class="card-body p-4">
+
+                        {% if user.unites is defined and user.unites|length > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th class="py-3">Numéro d'Unité</th>
+                                        <th class="py-3">Fin d'engagement</th>
+                                        <th class="py-3">État du matériel</th>
+                                        <th class="py-3">Incidents</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for unite in user.unites %}
+                                        <tr>
+                                            <td class="fw-bold text-primary">
+                                                Serveur {{ unite.numero }}
+                                                <br>
+                                                {% if unite.baie %}
+                                                    <span class="badge bg-secondary mt-1 fw-normal" style="font-size: 0.75rem;">
+                                                        <i class="fas fa-server me-1"></i> Baie {{ unite.baie.id }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-light text-muted border mt-1 fw-normal" style="font-size: 0.75rem;">
+                                                        <i class="fas fa-hourglass-half me-1"></i> Attribution en cours
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+
+                                            <td class="fw-semibold">
+                                                {% if unite.dateFinLocation %}
+                                                    {{ unite.dateFinLocation|date('d/m/Y') }}
+                                                {% else %}
+                                                    <span class="text-muted">N/A</span>
+                                                {% endif %}
+                                            </td>
+
+                                            <td>
+                                                {% if unite.etat|lower == 'ok' or unite.etat|lower == 'actif' %}
+                                                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Opérationnel</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i>{{ unite.etat|capitalize }}</span>
+                                                {% endif %}
+                                            </td>
+
+                                            {# LES PROBLÈMES / INTERVENTIONS (Avec Description) #}
+                                            <td>
+                                                {% if unite.interventions is defined and unite.interventions|length > 0 %}
+                                                    <ul class="list-unstyled mb-0">
+                                                        {% for intervention in unite.interventions %}
+                                                            <li class="mb-3">
+                                                                {# Titre de l'incident (Rouge si en cours, Vert si résolu) #}
+                                                                <div class="fw-bold {% if intervention.dateFin is null %}text-danger{% else %}text-success{% endif %}">
+                                                                    {% if intervention.dateFin is null %}
+                                                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                                                    {% else %}
+                                                                        <i class="fas fa-tools me-1"></i>
+                                                                    {% endif %}
+                                                                    {{ intervention.type|upper }}
+                                                                </div>
+
+                                                                {# Date de début #}
+                                                                <div class="small text-muted mb-1">
+                                                                    <i class="far fa-clock me-1"></i> Le {{ intervention.dateDebut|date('d/m/Y à H:i') }}
+                                                                </div>
+
+                                                                {# Description de l'API #}
+                                                                <div class="small bg-light p-2 rounded border border-opacity-25 {% if intervention.dateFin is null %}border-danger{% else %}border-success{% endif %}">
+                                                                    {{ intervention.description }}
+                                                                </div>
+
+                                                                {# Date de fin (Si l'incident est clos) #}
+                                                                {% if intervention.dateFin is not null %}
+                                                                    <div class="small text-success mt-1 fw-semibold">
+                                                                        <i class="fas fa-check-circle me-1"></i> Clos le {{ intervention.dateFin|date('d/m/Y à H:i') }}
+                                                                    </div>
+                                                                {% endif %}
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                {% else %}
+                                                    <span class="text-muted small"><i class="fas fa-shield-alt text-success me-1"></i>Aucun incident réseau</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-server fs-1 text-muted mb-3"></i>
+                                <h5>Aucun serveur actif</h5>
+                                <p class="text-muted">Vos unités apparaîtront ici dès que votre paiement sera validé.</p>
+                            </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
