@@ -38,14 +38,18 @@
 
                                     <span class="badge bg-info text-dark fs-6" style="min-width: 80px;">
                                         {% if item.dureeMois >= 12 %}
-                                            {{ item.dureeMois / 12 }} an(s)
+                                            {% if item.dureeMois / 12 == 1 %}
+                                                {{ item.dureeMois / 12 }} an
+                                            {% else %}
+                                                {{ item.dureeMois / 12 }} ans
+                                            {% endif %}
                                         {% else %}
                                             {{ item.dureeMois }} mois
                                         {% endif %}
                                     </span>
 
                                     <form action="{{ path('app_cart_update_duree', {'id': item.id, 'action': 'increase'}) }}" method="POST" class="d-inline">
-                                        <button type="submit" class="btn btn-sm btn-outline-secondary ms-2 fw-bold" {% if item.dureeMois == 9 %}disabled title="Passez à l'annuel"{% endif %}>+</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary ms-2 fw-bold">+</button>
                                     </form>
                                 </div>
                             </td>
@@ -59,10 +63,7 @@
 
                                     <span class="fs-5" style="min-width: 30px;">{{ item.quantity }}</span>
 
-                                    <form action="{{ path('app_cart_add', {'id': item.offre.id}) }}" method="POST" class="d-inline">
-                                        {# IMPORTANT : On renvoie la même durée pour ajouter à la bonne ligne ! #}
-                                        <input type="hidden" name="quantite" value="1">
-                                        <input type="hidden" name="duree" value="{{ item.dureeMois }}">
+                                    <form action="{{ path('app_cart_increase', {'id': item.id}) }}" method="POST" class="d-inline">
                                         <button type="submit" class="btn btn-sm btn-outline-secondary ms-2 fw-bold">+</button>
                                     </form>
                                 </div>

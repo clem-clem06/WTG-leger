@@ -65,7 +65,16 @@ final class CartController extends AbstractController
     public function decrease(CartItem $cartItem, CartService $cartService): Response
     {
         $cartService->decrease($cartItem);
-        $this->addFlash('success', 'Quantité mise à jour.');
+        $this->addFlash('success', 'Quantité diminuée.');
+
+        return $this->redirectToRoute('app_cart');
+    }
+
+    #[Route('/cart/increase/{id}', name: 'app_cart_increase', methods: ['POST'])]
+    public function increase(CartItem $cartItem, CartService $cartService): Response
+    {
+        $cartService->increase($cartItem);
+        $this->addFlash('success', 'Quantité augmentée.');
 
         return $this->redirectToRoute('app_cart');
     }

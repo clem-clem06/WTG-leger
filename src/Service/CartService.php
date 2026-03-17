@@ -98,6 +98,14 @@ readonly class CartService
         }
     }
 
+    public function increase(CartItem $cartItem): void
+    {
+        if ($cartItem->getCart()->getUser() === $this->getUser()) {
+            $cartItem->setQuantity($cartItem->getQuantity() + 1);
+            $this->em->flush();
+        }
+    }
+
     public function updateDuree(CartItem $cartItem, string $action): ?string
     {
         if ($cartItem->getCart()->getUser() !== $this->getUser()) {
