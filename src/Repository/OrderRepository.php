@@ -12,4 +12,18 @@ class OrderRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Order::class);
     }
+
+    /**
+     * Récupère les commandes du client avec les détails des produits en 1 requête
+     */
+    public function findDashboardOrders($user): array
+    {
+        return $this->createQueryBuilder('o')
+            ->leftJoin('o.orderItems', 'oi')->addSelect('oi')
+            ->where('o.user = :user')
+            ->orderBy('o.createdAt', 'DESC')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+    }
 }

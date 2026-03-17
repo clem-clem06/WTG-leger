@@ -68,4 +68,18 @@ class UniteRepository extends ServiceEntityRepository
             ->setLockMode(LockMode::PESSIMISTIC_WRITE)
             ->getResult();
     }
+
+    /**
+     * Récupère les unités du client avec leurs baies et interventions en 1 requête
+     */
+    public function findDashboardUnites($user): array
+    {
+        return $this->createQueryBuilder('u')
+            ->leftJoin('u.baie', 'b')->addSelect('b')
+            ->leftJoin('u.interventions', 'i')->addSelect('i')
+            ->where('u.locataire = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+    }
 }
