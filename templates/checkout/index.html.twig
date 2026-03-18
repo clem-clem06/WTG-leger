@@ -99,7 +99,7 @@
                     {# ========================================== #}
                     <div class="d-grid mt-4">
                         <button type="submit" id="submit-btn" class="btn btn-dark btn-lg rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center">
-                            <span id="submit-text"><i class="fas fa-lock me-2"></i>Payer {{ total|number_format(2, ',', ' ') }} €</span>
+                            <span id="submit-text"><i class="fas fa-lock me-2"></i>Payer {{ (total / 100)|number_format(2, ',', ' ') }} €</span>
                         </button>
                     </div>
 
