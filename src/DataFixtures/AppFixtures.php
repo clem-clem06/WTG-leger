@@ -5,14 +5,23 @@ namespace App\DataFixtures;
 use App\Entity\Baie;
 use App\Entity\Unite;
 use App\Entity\Offre;
+use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
+    private UserPasswordHasherInterface $passwordHasher;
+
+    public function __construct(UserPasswordHasherInterface $passwordHasher)
+    {
+        $this->passwordHasher = $passwordHasher;
+    }
+
     public function load(ObjectManager $manager): void
     {
-        // 1. CRÉATION DES OFFRES COMMERCIALES (Prix en centimes)
+        // 1. CRÉATION DES OFFRES (Prix en centimes)
         $offresData = [
             // Base: 100€/mois | Annuel: (100 * 12) - 10% = 1080€
             ['nom' => 'Base', 'unites' => 1, 'prixMensuel' => 10000, 'prixAnnuel' => 108000],
@@ -52,6 +61,18 @@ class AppFixtures extends Fixture
                 $manager->persist($unite);
             }
         }
+
+        // 3. CRÉATION D'un client de test
+        $client = new User();
+        $client->setEmail('user@htmail.fr');
+        $client->setRoles(['ROLE_USER']);
+        $client->setApiToken('WTG-SECRET-KEY-2026');
+        $manager->persist($client);
+
+        $hasedPassword = $this->passwordHasher->hashPassword($client, 'User123!');
+        $client->setPassword($hasedPassword);
+
+        $manager->persist($client);
 
         // On envoie tout dans la base de données
         $manager->flush();
