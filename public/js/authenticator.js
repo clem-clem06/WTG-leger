@@ -117,5 +117,5 @@ function initAuthenticator() {
             }
         }
     }
-initOfferForm();
+initAuthenticator();
 document.addEventListener('turbo:load', initOfferForm);
