@@ -59,22 +59,31 @@ readonly class CheckoutService
             $this->em->persist($order);
             $this->em->persist($payment);
 
-            // 2. ATTRIBUTION (AVEC VERROU PESSIMISTE)
+            // 2. ATTRIBUTION
+            $totalUnitesRequises = 0;
+
             foreach ($cart->getCartItems() as $item) {
-                $unitesRequises = $item->getOffre()->getNombreUnites() * $item->getQuantity();
+                $totalUnitesRequises += $item->getOffre()->getNombreUnites() * $item->getQuantity();
+            }
+
+            $unitesDisponibles = $this->uniteRepository->findAndLockAvailableUnites($totalUnitesRequises);
+
+            if (count($unitesDisponibles) < $totalUnitesRequises) {
+                throw new RuntimeException('Désolé, notre stock est insuffisant pour valider l\'intégralité de votre panier.');
+            }
+
+            $uniteIndex = 0;
+            foreach ($cart->getCartItems() as $item) {
+                $unitesRequisesPourCetItem = $item->getOffre()->getNombreUnites() * $item->getQuantity();
                 $dateFin = new DateTime('+' . $item->getDureeMois() . ' months');
 
-                $unitesDisponibles = $this->uniteRepository->findAndLockAvailableUnites($unitesRequises);
-
-                if (count($unitesDisponibles) < $unitesRequises) {
-                    // On déclenche une erreur qui sera attrapée par le contrôleur !
-                    throw new RuntimeException('Désolé, un autre client vient de réserver les dernières unités de l\'offre ' . $item->getOffre()->getNom());
-                }
-
-                foreach ($unitesDisponibles as $unite) {
+                for ($i = 0; $i < $unitesRequisesPourCetItem; $i++) {
+                    $unite = $unitesDisponibles[$uniteIndex];
                     $unite->setLocataire($user);
                     $unite->setDateFinLocation($dateFin);
                     $this->em->persist($unite);
+
+                    $uniteIndex++;
                 }
             }
 
