@@ -45,7 +45,7 @@ final class CheckoutController extends AbstractController
                 [$fakeBankToken, $last4] = $paymentService->processCard($data, $user);
 
                 // 2. Le CheckoutService s'occupe de générer la commande et verrouiller le stock
-                $checkoutService->processCheckout($user, $cart, $fakeBankToken, $last4);
+                $checkoutService->processCheckout($user, $cart, $fakeBankToken, $last4, (bool)null);
 
                 $this->addFlash('success', 'Paiement réussi ! Vos unités ont été attribuées.');
                 return $this->redirectToRoute('app_customer');
@@ -72,5 +72,32 @@ final class CheckoutController extends AbstractController
             'savedCards' => $savedCards,
             'checkoutForm' => $form->createView(),
         ]);
+    }
+
+    #[Route('/checkout/virement', name: 'app_checkout_virement',methods: ['POST'])]
+    public function prosseceVirement(Request $request, CheckoutService $checkoutService, CartRepository $cartRepository): Response
+    {
+        $user = $this->getUser();
+        $cart = $cartRepository->findOneBy(['user' => $user]);
+
+        if (!$cart || $cart->getCartItems()->isEmpty()) {
+            return $this->redirectToRoute('app_cart');
+        }
+
+            try {
+                $checkoutService->processCheckout($user, $cart, null, null, true);
+                $this->addFlash('warning', 'Votre commande a été enregistrée avec succès. Veuillez effectuer le virement bancaire en utilisant les informations fournies, puis attendez la validation de votre paiement par notre équipe.');
+                return $this->redirectToRoute('app_customer');
+            } catch (RuntimeException $e) {
+                $this->addFlash('danger', $e->getMessage());
+                return $this->redirectToRoute('app_cart');
+            } catch (Throwable) {
+                $this->addFlash('danger', 'Une erreur technique inattendue est survenue. Veuillez réessayer plus tard.');
+                return $this->redirectToRoute('app_cart');
+            }
+
+
+        $this->addFlash('danger', 'Token CSRF invalide. Veuillez réessayer.');
+        return $this->redirectToRoute('app_cart');
     }
 }

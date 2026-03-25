@@ -8,8 +8,10 @@ Authorization: Bearer WTG-SECRET-KEY-2026
 #Content-Type: application/json
 #
 #{
-#    "type": "incident",
-#    "etat": "en panne",
-#    "description": "Coupure électrique détectée sur la rangée A. Redémarrage manuel nécessaire.",
-#    "unites_affectees": [7, 8]
+#    "type": "Maintenance",
+#    "etat": "OK",
+#    "description": "Maintenance.",
+#    "dateDebut": "15/03/2026 08:00:00",
+#    "dateFin": "16/03/2026 08:00:00",
+#    "unites_affectees": [6, 7]
 #}

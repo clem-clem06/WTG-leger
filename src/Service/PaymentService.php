@@ -67,6 +67,7 @@ readonly class PaymentService
 
         $last4 = substr($cleanCardNumber, -4);
         $fakeBankToken = 'tok_simul_' . bin2hex(random_bytes(16));
+        //TODO: mettre de la sécu
 
         // 3. Sauvegarde de la carte si la case est cochée
         $saveCard = $data['saveCard'] ?? false;

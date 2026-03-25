@@ -14,8 +14,8 @@ use RuntimeException;
 
 readonly class CheckoutService
 {
-    public function __construct(private EntityManagerInterface $em, private UniteRepository $uniteRepository
-    ) {
+    public function __construct(private EntityManagerInterface $em, private UniteRepository $uniteRepository)
+    {
 
     }
 
@@ -23,7 +23,7 @@ readonly class CheckoutService
      * Traite la commande de A à Z (Coffre-fort SQL)
      * @throws DateMalformedStringException
      */
-    public function processCheckout(User $user, Cart $cart, ?string $fakeBankToken, ?string $last4): void
+    public function processCheckout(User $user, Cart $cart, ?string $fakeBankToken, ?string $last4,bool $isVirement = false): void
     {
         $this->em->beginTransaction();
 
@@ -52,9 +52,17 @@ readonly class CheckoutService
             $payment = new Payment();
             $payment->setOrderRef($order);
             $payment->setAmount($total);
-            $payment->setStatus('completed');
-            $tokenTrace = $fakeBankToken ? ' avec la carte finissant par ' . $last4 : '';
-            $payment->setGatewayResponse('Paiement simulé réussi' . $tokenTrace);
+
+
+
+            $payment->setStatus($isVirement ? '2' : '1');
+            //TODO : a voir
+            if ($isVirement) {
+                $payment->setGatewayResponse('Virement bancaire en attente de réception');
+            } else {
+                $tokenTrace = $fakeBankToken ? ' avec la carte finissant par ' . $last4 : '';
+                $payment->setGatewayResponse('Paiement réussi' . $tokenTrace);
+            }
 
             $this->em->persist($order);
             $this->em->persist($payment);
