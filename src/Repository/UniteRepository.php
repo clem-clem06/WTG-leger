@@ -82,4 +82,18 @@ class UniteRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Récupère uniquement les unités d'un client spécifique (API)
+     */
+    public function findUserUnitesWithBaie($user): array
+    {
+        return $this->createQueryBuilder('u')
+            ->leftJoin('u.baie', 'b')
+            ->addSelect('b')
+            ->where('u.locataire = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+    }
 }

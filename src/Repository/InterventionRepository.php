@@ -41,15 +41,4 @@ class InterventionRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    /**
-     * Récupère toutes les interventions avec leurs unités liées en UNE SEULE requête.
-     */
-    public function findAllWithUnites(): array
-    {
-        return $this->createQueryBuilder('i')
-            ->leftJoin('i.unites', 'u')
-            ->addSelect('u')
-            ->getQuery()
-            ->getResult();
-    }
 }
