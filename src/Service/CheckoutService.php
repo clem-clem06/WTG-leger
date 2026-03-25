@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Repository\UniteRepository;
 use DateMalformedStringException;
 use DateTime;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use RuntimeException;
 
@@ -25,6 +26,7 @@ readonly class CheckoutService
      */
     public function processCheckout(User $user, Cart $cart, ?string $fakeBankToken, ?string $last4,bool $isVirement = false): void
     {
+        $this->cleanExpiredVirements();
         $this->em->beginTransaction();
 
         try {
@@ -109,6 +111,61 @@ readonly class CheckoutService
         } catch (RuntimeException $e) {
             $this->em->rollback();
             throw $e; // On renvoie l'erreur au Controller pour qu'il affiche le Flash
+        }
+    }
+
+    /**
+     * Annule les commandes par virement de plus de 14 jours et libère les serveurs
+     */
+    public function cleanExpiredVirements(): void
+    {
+        // 1. On calcule la date limite (il y a 14 jours)
+        $limitDate = new DateTimeImmutable('-14 days');
+
+        // 2. On cherche toutes les commandes "pending" plus vieilles que 14 jours
+        $expiredOrders = $this->em->getRepository(Order::class)->createQueryBuilder('o')
+            ->where('o.status = :status')
+            ->andWhere('o.createdAt <= :limit')
+            ->setParameter('status', 'pending')
+            ->setParameter('limit', $limitDate)
+            ->getQuery()
+            ->getResult();
+
+        foreach ($expiredOrders as $order) {
+            // A. On passe la commande en annulée
+            $order->setStatus('annulée');
+
+            // B. On passe ses paiements en annulés
+            foreach ($order->getPayments() as $payment) {
+                if ($payment->getStatus() === 'pending') {
+                    $payment->setStatus('annulé');
+                    $payment->setGatewayResponse('Annulé : Délai de 14 jours dépassé.');
+                }
+            }
+
+            // C. On récupère les unités bloquées de ce client pour les libérer
+            $user = $order->getUser();
+            $unitesToFreeCount = 0;
+            foreach ($order->getOrderItems() as $item) {
+                $unitesToFreeCount += $item->getOffre()->getNombreUnites() * $item->getQuantity();
+            }
+
+            // On cherche uniquement ses unités qui étaient "En attente de paiement"
+            $unitesToFree = $this->uniteRepository->findBy([
+                'locataire' => $user,
+                'etat' => 'En attente de paiement'
+            ], null, $unitesToFreeCount);
+
+            foreach ($unitesToFree as $unite) {
+                $unite->setLocataire(null);
+                $unite->setDateFinLocation(null);
+                $unite->setEtat('OK');
+            }
+        }
+
+        // Si on a nettoyé des choses, on sauvegarde en base de données
+        if (count($expiredOrders) > 0) {
+            $this->em->flush();
         }
     }
 }
