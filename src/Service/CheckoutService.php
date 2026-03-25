@@ -90,6 +90,9 @@ readonly class CheckoutService
                     $unite->setLocataire($user);
                     $unite->setDateFinLocation($dateFin);
                     $this->em->persist($unite);
+                    if($isVirement){
+                        $unite->setEtat('en attente de paiement');
+                    }
 
                     $uniteIndex++;
                 }
