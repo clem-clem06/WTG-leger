@@ -7,8 +7,8 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Random\RandomException;
+use Symfony\Component\Validator\Constraints\CardScheme;
 use Symfony\Component\Validator\Constraints\Collection;
-use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -34,6 +34,7 @@ readonly class PaymentService
             if ($card) {
                 return [$card->getToken(), $card->getLast4()];
             }
+            throw new InvalidArgumentException('La carte sélectionnée est invalide ou ne vous appartient pas.');
         }
 
         // 2. Si c'est une nouvelle carte saisie à la main
@@ -47,7 +48,10 @@ readonly class PaymentService
         $constraints = new Collection([
             'cardNumber' => [
                 new NotBlank(message: 'Le numéro de carte est obligatoire.'),
-                new Length(min: 14, max: 19, minMessage: 'Numéro de carte trop court.')
+                new CardScheme(
+                    schemes: ['VISA', 'MASTERCARD', 'AMEX', 'DISCOVER'],
+                    message: 'Le numéro de carte bancaire est invalide.'
+                )
             ],
             'expDate' => new Regex(
                 pattern: '/^(0[1-9]|1[0-2])\/?([0-9]{2})$/',
@@ -67,7 +71,6 @@ readonly class PaymentService
 
         $last4 = substr($cleanCardNumber, -4);
         $fakeBankToken = 'tok_simul_' . bin2hex(random_bytes(16));
-        //TODO: mettre de la sécu
 
         // 3. Sauvegarde de la carte si la case est cochée
         $saveCard = $data['saveCard'] ?? false;

@@ -60,52 +60,59 @@
                                     <thead class="table-light">
                                     <tr>
                                         <th class="py-3">Commande / Date</th>
-                                        <th class="py-3">Abonnement(s)</th>
+                                        <th class="py-3">Détails de la commande</th>
                                         <th class="py-3">Montant</th>
-                                        <th class="py-3">Statut</th>
+                                        <th class="py-3">Statut du paiement</th>
                                     </tr>
                                     </thead>
                                     <tbody>
+                                    {# 1. On boucle sur les commandes #}
                                     {% for order in orders %}
-                                        <tr>
-                                            <td class="fw-bold">
-                                                #{{ order.id }}<br>
-                                                <small class="text-muted fw-normal"><i class="far fa-calendar-alt me-1"></i>{{ order.createdAt|date('d/m/Y') }}</small>
-                                            </td>
 
-                                            <td>
-                                                <ul class="list-unstyled mb-0 small">
-                                                    {% for item in order.orderItems %}
-                                                        <li class="mb-1">
-                                                            <span class="badge bg-light border text-dark me-1">{{ item.quantity }}x</span>
-                                                            <span class="fw-semibold">{{ item.offre.nom }}</span>
-                                                            <span class="text-muted">({{ item.dureeMois }} mois)</span>
-                                                        </li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </td>
+                                        {# 2. On boucle sur TOUS les paiements de cette commande #}
+                                        {% for payment in order.payments %}
+                                            <tr>
+                                                <td class="fw-bold">
+                                                    #PAY{{ payment.id }}<br>
+                                                    <span class="badge bg-light text-dark border mt-1">#{{ order.id }}</span><br>
+                                                    <small class="text-muted fw-normal"><i class="far fa-calendar-alt me-1"></i>{{ payment.createdAt|date('d/m/Y à H:i') }}</small>
+                                                </td>
 
-                                            <td class="fw-bold text-nowrap">{{ (order.total / 100)|number_format(2, ',', ' ') }} €</td>
-                                            <td>
-                                                {% set lastPayment = order.payments|last %}
+                                                <td>
+                                                    <ul class="list-unstyled mb-0 small">
+                                                        {% for item in order.orderItems %}
+                                                            <li class="mb-1">
+                                                                <span class="badge bg-light border text-dark me-1">{{ item.quantity }}x</span>
+                                                                <span class="fw-semibold">{{ item.offre.nom }}</span>
+                                                                <span class="text-muted">({{ item.dureeMois }} mois)</span>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                    {% if payment.gatewayResponse %}
+                                                        <div class="small text-info mt-2 fw-semibold">
+                                                            <i class="fas fa-info-circle me-1"></i>{{ payment.gatewayResponse }}
+                                                        </div>
+                                                    {% endif %}
+                                                </td>
 
-                                                {% if lastPayment %}
-                                                    {% if lastPayment.status == '1' %}
-                                                        <span class="badge bg-success px-3">Payée</span>
-                                                    {% elseif lastPayment.status == '2' %}
+                                                <td class="fw-bold text-nowrap">{{ (payment.amount / 100)|number_format(2, ',', ' ') }} €</td>
+
+                                                <td>
+                                                    {% if payment.status|lower == 'completed' or payment.status|lower == 'payée' %}
+                                                        <span class="badge bg-success px-3">Validé</span>
+                                                    {% elseif payment.status|lower == 'pending' %}
                                                         <span class="badge bg-warning text-dark px-3">En attente</span>
                                                     {% else %}
-                                                        <span class="badge bg-secondary px-3">Statut inconnu</span>
+                                                        <span class="badge bg-secondary px-3">{{ payment.status|capitalize }}</span>
                                                     {% endif %}
-                                                {% else %}
-                                                    <span class="badge bg-secondary px-3">Aucun paiement</span>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
                                     {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
+
                         {% else %}
                             <div class="text-center py-5">
                                 <i class="fas fa-box-open fs-1 text-muted mb-3"></i>

@@ -20,6 +20,7 @@ class OrderRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('o')
             ->leftJoin('o.orderItems', 'oi')->addSelect('oi')
+            ->leftJoin('o.payments', 'p')->addSelect('p')
             ->where('o.user = :user')
             ->orderBy('o.createdAt', 'DESC')
             ->setParameter('user', $user)

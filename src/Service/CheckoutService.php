@@ -37,7 +37,7 @@ readonly class CheckoutService
             $order = new Order();
             $order->setUser($user);
             $order->setTotal($total);
-            $order->setStatus('payée');
+            $order->setStatus('pending');
 
             foreach ($cart->getCartItems() as $item) {
                 $orderItem = new OrderItem();
@@ -53,15 +53,15 @@ readonly class CheckoutService
             $payment->setOrderRef($order);
             $payment->setAmount($total);
 
-
-
-            $payment->setStatus($isVirement ? '2' : '1');
-            //TODO : a voir
             if ($isVirement) {
+                $payment->setStatus('pending');
                 $payment->setGatewayResponse('Virement bancaire en attente de réception');
             } else {
+                $payment->setStatus('completed');
                 $tokenTrace = $fakeBankToken ? ' avec la carte finissant par ' . $last4 : '';
                 $payment->setGatewayResponse('Paiement réussi' . $tokenTrace);
+
+                $order->setStatus('payée');
             }
 
             $this->em->persist($order);

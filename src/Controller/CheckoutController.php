@@ -75,8 +75,9 @@ final class CheckoutController extends AbstractController
     }
 
     #[Route('/checkout/virement', name: 'app_checkout_virement',methods: ['POST'])]
-    public function prosseceVirement(Request $request, CheckoutService $checkoutService, CartRepository $cartRepository): Response
+    public function prosseceVirement(CheckoutService $checkoutService, CartRepository $cartRepository): Response
     {
+        /** @var User $user */
         $user = $this->getUser();
         $cart = $cartRepository->findOneBy(['user' => $user]);
 
@@ -95,9 +96,5 @@ final class CheckoutController extends AbstractController
                 $this->addFlash('danger', 'Une erreur technique inattendue est survenue. Veuillez réessayer plus tard.');
                 return $this->redirectToRoute('app_cart');
             }
-
-
-        $this->addFlash('danger', 'Token CSRF invalide. Veuillez réessayer.');
-        return $this->redirectToRoute('app_cart');
     }
 }
