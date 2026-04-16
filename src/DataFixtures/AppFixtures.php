@@ -8,16 +8,17 @@ use App\Entity\Offre;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
-    private UserPasswordHasherInterface $passwordHasher;
+    public function __construct(
+        private UserPasswordHasherInterface $passwordHasher,
+        #[Autowire(env: 'API_TOKEN_CLIENT')]
+        private string $apiToken,
+    ) {}
 
-    public function __construct(UserPasswordHasherInterface $passwordHasher)
-    {
-        $this->passwordHasher = $passwordHasher;
-    }
 
     public function load(ObjectManager $manager): void
     {
@@ -89,7 +90,7 @@ class AppFixtures extends Fixture
         $client->setEmail('client@htmail.fr');
         $client->setRoles(['ROLE_CLIENT']);
         $client->setPassword($this->passwordHasher->hashPassword($client, 'Client123!'));
-        $client->setApiToken('WTG-SECRET-KEY-2026');
+        $client->setApiToken($this->apiToken);
         $manager->persist($client);
 
         // Envoie tout en BDD en une seule fois

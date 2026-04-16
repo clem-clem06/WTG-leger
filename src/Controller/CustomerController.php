@@ -7,10 +7,12 @@ use App\Repository\UniteRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class CustomerController extends AbstractController
 {
     #[Route('/customer', name: 'app_customer')]
+    #[IsGranted('ROLE_USER')]
     public function index(OrderRepository $orderRepository, UniteRepository $uniteRepository): Response
     {
         $user = $this->getUser();

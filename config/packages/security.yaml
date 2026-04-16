@@ -22,12 +22,12 @@ security:
             # Ensure dev tools and static assets are always allowed
             pattern: ^/(_profiler|_wdt|assets|build)/
             security: false
-#        api:
-#            pattern: ^/api/
-#            stateless: true
-#            provider: app_user_provider
-#            access_token:
-#                token_handler: App\Security\ApiTokenHandler
+        api:
+            pattern: ^/api/
+            stateless: true
+            provider: app_user_provider
+            access_token:
+                token_handler: App\Security\ApiTokenHandler
         main:
             lazy: true
             provider: app_user_provider
@@ -42,7 +42,7 @@ security:
                 # target: app_any_route
             remember_me:
                 secret: '%kernel.secret%'
-                lifetime: 604800 # 1 week in seconds
+                lifetime: 86400 # 1 day in seconds
                 path: /
                 always_remember_me: false
 
