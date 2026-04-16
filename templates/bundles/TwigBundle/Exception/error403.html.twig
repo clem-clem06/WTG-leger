@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accès refusé - WorkTogether{% endblock %}
+
+{% block navbar %}{% include 'nav_bar_minimal.html.twig' %}{% endblock %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-center py-5">
+    <div class="text-center" style="max-width: 520px;">
+
+        <div class="display-1 fw-bold text-danger mb-2">403</div>
+
+        <h1 class="fw-bold mb-3">Accès refusé</h1>
+
+        <p class="text-muted fs-5 mb-4">
+            Cette section est réservée aux <strong>clients</strong> de WorkTogether.<br>
+            {% if app.user %}
+                Votre compte <strong>{{ app.user.userIdentifier }}</strong> n'est pas autorisé à accéder à cette page.
+            {% else %}
+                Vous devez être connecté avec un compte client pour accéder à cette page.
+            {% endif %}
+        </p>
+
+        <div class="d-flex gap-2 justify-content-center flex-wrap">
+            <a href="{{ path('app_home') }}" class="btn btn-primary px-4">
+                Retour à l'accueil
+            </a>
+            {% if app.user %}
+                <a href="{{ path('app_logout') }}" class="btn btn-outline-secondary px-4">
+                    Se déconnecter
+                </a>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="btn btn-outline-secondary px-4">
+                    Se connecter
+                </a>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

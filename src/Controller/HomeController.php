@@ -13,14 +13,17 @@ final class HomeController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
     public function index(OffreRepository $offreRepository, BaieRepository $baieRepository, UniteRepository $uniteRepository): Response {
-        // 1. Récupérer les offres
-        $offres = $offreRepository->findAll();
+        if ($this->getUser() && !$this->isGranted('ROLE_CLIENT')) {
+            return $this->render('home/blocked.html.twig', [
+                'totalBaies' => $baieRepository->count(),
+                'totalUnites' => $uniteRepository->count(),
+                'unitesDispo' => $uniteRepository->count(['locataire' => null]),
+            ]);
+        }
 
-        // 2. Calculer les statistiques
+        $offres = $offreRepository->findAll();
         $totalBaies = $baieRepository->count();
         $totalUnites = $uniteRepository->count();
-
-        // Une unité est dispo si son champ 'locataire' est vide (NULL en base de données)
         $unitesDispo = $uniteRepository->count(['locataire' => null]);
 
         return $this->render('home/index.html.twig', [

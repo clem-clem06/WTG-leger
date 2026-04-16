@@ -18,7 +18,7 @@ use Throwable;
 use Psr\Log\LoggerInterface;
 use App\Repository\CardRepository;
 
-#[IsGranted('ROLE_USER')]
+#[IsGranted('ROLE_CLIENT')]
 final class CheckoutController extends AbstractController
 {
     #[Route('/checkout', name: 'app_checkout')]

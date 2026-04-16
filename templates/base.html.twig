@@ -17,7 +17,7 @@
     </head>
     <body class="d-flex flex-column min-vh-100">
 
-    {% include 'nav_bar.html.twig' %}
+    {% block navbar %}{% include 'nav_bar.html.twig' %}{% endblock %}
 
     <div class="container">
         <div class="mt-4" id="flash-messages-container">

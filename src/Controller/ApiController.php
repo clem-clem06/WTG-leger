@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted('ROLE_USER')]
+#[IsGranted('ROLE_CLIENT')]
 final class ApiController extends AbstractController
 {
     #[Route('/api/unites', name: 'api_unites', methods: ['GET'])]

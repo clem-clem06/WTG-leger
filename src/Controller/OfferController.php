@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use App\Form\AddToCartType;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted('ROLE_USER')]
+#[IsGranted('ROLE_CLIENT')]
 final class OfferController extends AbstractController
 {
     #[Route('/offer/{id}', name: 'app_offer_show')]

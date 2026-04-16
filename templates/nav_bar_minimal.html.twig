@@ -1,0 +1,17 @@
+<nav class="navbar navbar-dark bg-dark shadow-sm sticky-top">
+    <div class="container">
+        <span class="navbar-brand fw-bold">WorkTogether</span>
+        <div class="d-flex align-items-center">
+
+            {% if app.user %}
+                <span class="text-light me-3">
+                        Bonjour, <strong>{{ app.user.userIdentifier }}</strong>
+                    </span>
+
+            <a href="{{ path('app_logout') }}" class="btn btn-sm btn-outline-danger">
+                Se déconnecter
+            </a>
+        {% endif %}
+        </div>
+    </div>
+</nav>
