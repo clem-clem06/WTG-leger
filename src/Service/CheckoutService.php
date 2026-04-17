@@ -26,7 +26,6 @@ readonly class CheckoutService
      */
     public function processCheckout(User $user, Cart $cart, ?string $fakeBankToken, ?string $last4,bool $isVirement = false): void
     {
-        $this->cleanExpiredVirements();
         $this->em->beginTransaction();
 
         try {
