@@ -1,0 +1,142 @@
+@startuml MCD - WorkTogether
+!define MCD
+title Modèle Conceptuel de Données - WorkTogether (WTG)
+
+skinparam class {
+    BackgroundColor #E8F0FE
+    BorderColor #1F3A93
+    ArrowColor #1F3A93
+    FontName Arial
+}
+skinparam linetype ortho
+hide circle
+hide methods
+
+' ============= ENTITÉS =============
+
+entity USER {
+    + id
+    --
+    email
+    roles
+    password
+    apiToken
+}
+
+entity OFFRE {
+    + id
+    --
+    nom
+    nombreUnites
+    prixMensuel
+    prixAnnuel
+}
+
+entity BAIE {
+    + id
+    --
+    reference
+}
+
+entity UNITE {
+    + id
+    --
+    numero
+    etat
+    nom
+    type
+    couleur
+    dateFinLocation
+}
+
+entity CART {
+    + id
+    --
+    createdAt
+    updatedAt
+}
+
+entity CART_ITEM {
+    + id
+    --
+    quantity
+    price
+    dureeMois
+}
+
+entity "ORDER" as CMD {
+    + id
+    --
+    total
+    status
+    createdAt
+}
+
+entity ORDER_ITEM {
+    + id
+    --
+    quantity
+    price
+    dureeMois
+}
+
+entity PAYMENT {
+    + id
+    --
+    amount
+    status
+    gatewayResponse
+    createdAt
+}
+
+entity CARD {
+    + id
+    --
+    last4
+    expMonth
+    expYear
+    token
+}
+
+entity INTERVENTION {
+    + id
+    --
+    type
+    description
+    dateDebut
+    dateFin
+    etat
+}
+
+' ============= ASSOCIATIONS =============
+
+USER ||--o{ CART : "possède"
+USER ||--o{ CMD : "passe"
+USER ||--o{ CARD : "enregistre"
+USER ||--o{ UNITE : "loue"
+
+CART ||--o{ CART_ITEM : "contient"
+CART_ITEM }o--|| OFFRE : "concerne"
+
+CMD ||--o{ ORDER_ITEM : "détaille"
+ORDER_ITEM }o--|| OFFRE : "concerne"
+CMD ||--o{ PAYMENT : "réglée par"
+
+BAIE ||--o{ UNITE : "héberge"
+UNITE }o--o{ INTERVENTION : "subit"
+
+note bottom of USER
+  Rôles : ROLE_ADMIN, ROLE_COMPTABLE, ROLE_CLIENT
+  apiToken : authentification API REST stateless
+end note
+
+note bottom of OFFRE
+  4 offres : Base (1u), Start-up (10u),
+  PME (21u), Entreprise (42u)
+end note
+
+note bottom of BAIE
+  Capacité totale : 30 baies × 42 unités = 1260
+end note
+
+@enduml

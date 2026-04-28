@@ -1,0 +1,156 @@
+@startuml MLD - WorkTogether
+title Modèle Logique de Données - WorkTogether (WTG)\nMySQL 8 / Doctrine ORM 3.6
+
+skinparam class {
+    BackgroundColor #FFF8E7
+    BorderColor #B7791F
+    ArrowColor #B7791F
+    FontName Consolas
+}
+skinparam linetype ortho
+hide circle
+hide methods
+
+' ============= TABLES =============
+
+class user <<table>> {
+    <b>PK</b> id : INT AUTO_INCREMENT
+    --
+    email : VARCHAR(180) UNIQUE NOT NULL
+    roles : JSON NOT NULL
+    password : VARCHAR(255) NOT NULL
+    api_token : VARCHAR(255) NULL
+}
+
+class offre <<table>> {
+    <b>PK</b> id : INT AUTO_INCREMENT
+    --
+    nom : VARCHAR(255) NOT NULL
+    nombre_unites : INT NOT NULL
+    prix_mensuel : INT NOT NULL
+    prix_annuel : INT NULL
+}
+
+class baie <<table>> {
+    <b>PK</b> id : INT AUTO_INCREMENT
+    --
+    reference : VARCHAR(255) NOT NULL
+}
+
+class unite <<table>> {
+    <b>PK</b> id : INT AUTO_INCREMENT
+    <b>FK</b> baie_id : INT NOT NULL
+    <b>FK</b> locataire_id : INT NULL
+    --
+    numero : VARCHAR(255) NOT NULL
+    etat : VARCHAR(255) NOT NULL
+    nom : VARCHAR(255) NULL
+    type : VARCHAR(255) NULL
+    couleur : VARCHAR(255) NULL
+    date_fin_location : DATETIME NULL
+}
+
+class cart <<table>> {
+    <b>PK</b> id : INT AUTO_INCREMENT
+    <b>FK</b> user_id : INT NOT NULL
+    --
+    created_at : DATETIME NOT NULL
+    updated_at : DATETIME NOT NULL
+}
+
+class cart_item <<table>> {
+    <b>PK</b> id : INT AUTO_INCREMENT
+    <b>FK</b> cart_id : INT NOT NULL
+    <b>FK</b> offre_id : INT NOT NULL
+    --
+    quantity : INT NOT NULL
+    price : INT NOT NULL
+    duree_mois : INT NOT NULL
+}
+
+class app_order <<table>> {
+    <b>PK</b> id : INT AUTO_INCREMENT
+    <b>FK</b> user_id : INT NOT NULL
+    --
+    total : INT NOT NULL
+    status : VARCHAR(255) NOT NULL
+    created_at : DATETIME NOT NULL
+}
+
+class order_item <<table>> {
+    <b>PK</b> id : INT AUTO_INCREMENT
+    <b>FK</b> order_ref_id : INT NOT NULL
+    <b>FK</b> offre_id : INT NOT NULL
+    --
+    quantity : INT NOT NULL
+    price : INT NOT NULL
+    duree_mois : INT NOT NULL
+}
+
+class payment <<table>> {
+    <b>PK</b> id : INT AUTO_INCREMENT
+    <b>FK</b> order_ref_id : INT NOT NULL
+    --
+    amount : INT NOT NULL
+    status : VARCHAR(255) NOT NULL
+    gateway_response : TEXT NULL
+    created_at : DATETIME NOT NULL
+}
+
+class card <<table>> {
+    <b>PK</b> id : INT AUTO_INCREMENT
+    <b>FK</b> user_id : INT NOT NULL
+    --
+    last4 : VARCHAR(4) NOT NULL
+    exp_month : INT NOT NULL
+    exp_year : INT NOT NULL
+    token : VARCHAR(255) NOT NULL
+}
+
+class intervention <<table>> {
+    <b>PK</b> id : INT AUTO_INCREMENT
+    --
+    type : VARCHAR(255) NOT NULL
+    description : TEXT NOT NULL
+    date_debut : DATETIME NOT NULL
+    date_fin : DATETIME NULL
+    etat : VARCHAR(255) NOT NULL
+}
+
+class intervention_unite <<table associative>> {
+    <b>PK,FK</b> intervention_id : INT
+    <b>PK,FK</b> unite_id : INT
+}
+
+' ============= RELATIONS =============
+
+user "1" --o "0..*" cart : user_id
+user "1" --o "0..*" app_order : user_id
+user "1" --o "0..*" card : user_id
+user "1" --o "0..*" unite : locataire_id
+
+cart "1" --o "0..*" cart_item : cart_id
+offre "1" --o "0..*" cart_item : offre_id
+
+app_order "1" --o "0..*" order_item : order_ref_id
+offre "1" --o "0..*" order_item : offre_id
+app_order "1" --o "0..*" payment : order_ref_id
+
+baie "1" --o "0..*" unite : baie_id
+unite "1" --o "0..*" intervention_unite : unite_id
+intervention "1" --o "0..*" intervention_unite : intervention_id
+
+note bottom of user
+  Index UNIQ_IDENTIFIER_EMAIL sur email
+  api_token exclu de la sérialisation session
+end note
+
+note bottom of app_order
+  Nom de table "app_order" (réservé MySQL "order")
+end note
+
+note bottom of intervention_unite
+  Table associative N:N entre intervention et unite
+end note
+
+@enduml
