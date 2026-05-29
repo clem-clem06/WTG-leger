@@ -17,7 +17,7 @@ class ApiTokenHandlerTest extends TestCase
     public function testTokenValideRenvoieUnUserBadge(): void
     {
         $user = new User();
-        $user->setEmail('client@htmail.fr');
+        $user->setEmail('client@hotmail.fr');
         $user->setApiToken('WTG-SECRET-KEY-TEST');
 
         $repository = $this->createMock(UserRepository::class);
@@ -30,7 +30,7 @@ class ApiTokenHandlerTest extends TestCase
         $badge = $handler->getUserBadgeFrom('WTG-SECRET-KEY-TEST');
 
         $this->assertInstanceOf(UserBadge::class, $badge);
-        $this->assertSame('client@htmail.fr', $badge->getUserIdentifier());
+        $this->assertSame('client@hotmail.fr', $badge->getUserIdentifier());
     }
 
     public function testTokenInvalideLeveUneException(): void

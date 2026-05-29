@@ -48,7 +48,7 @@ class AccessControlTest extends WebTestCase
 
     public function testCartAccessibleForClient(): void
     {
-        $user = $this->em->getRepository(User::class)->findOneBy(['email' => 'client@htmail.fr']);
+        $user = $this->em->getRepository(User::class)->findOneBy(['email' => 'client@hotmail.fr']);
         $this->client->loginUser($user);
         $this->client->request('GET', '/cart');
 
@@ -75,7 +75,7 @@ class AccessControlTest extends WebTestCase
 
     public function testCheckoutRedirectsToCartWhenEmpty(): void
     {
-        $user = $this->em->getRepository(User::class)->findOneBy(['email' => 'client@htmail.fr']);
+        $user = $this->em->getRepository(User::class)->findOneBy(['email' => 'client@hotmail.fr']);
         $this->client->loginUser($user);
         $this->client->request('GET', '/checkout');
 

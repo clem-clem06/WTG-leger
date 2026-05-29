@@ -40,15 +40,15 @@ class AppFixturesRolesTest extends KernelTestCase
 
     public function testClientHasRoleClient(): void
     {
-        $user = $this->em->getRepository(User::class)->findOneBy(['email' => 'client@htmail.fr']);
-        $this->assertNotNull($user, 'client@htmail.fr doit exister en base');
+        $user = $this->em->getRepository(User::class)->findOneBy(['email' => 'client@hotmail.fr']);
+        $this->assertNotNull($user, 'client@hotmail.fr doit exister en base');
         $this->assertContains('ROLE_CLIENT', $user->getRoles());
     }
 
     public function testClientHasApiToken(): void
     {
-        $user = $this->em->getRepository(User::class)->findOneBy(['email' => 'client@htmail.fr']);
-        $this->assertNotNull($user, 'client@htmail.fr doit exister en base');
-        $this->assertNotEmpty($user->getApiToken(), 'client@htmail.fr doit avoir un apiToken');
+        $user = $this->em->getRepository(User::class)->findOneBy(['email' => 'client@hotmail.fr']);
+        $this->assertNotNull($user, 'client@hotmail.fr doit exister en base');
+        $this->assertNotEmpty($user->getApiToken(), 'client@hotmail.fr doit avoir un apiToken');
     }
 }

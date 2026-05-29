@@ -44,15 +44,15 @@ class UserTest extends TestCase
     public function testGetUserIdentifierRenvoieEmail(): void
     {
         $user = new User();
-        $user->setEmail('client@htmail.fr');
+        $user->setEmail('client@hotmail.fr');
 
-        $this->assertSame('client@htmail.fr', $user->getUserIdentifier());
+        $this->assertSame('client@hotmail.fr', $user->getUserIdentifier());
     }
 
     public function testSerializeExclutLeTokenApi(): void
     {
         $user = new User();
-        $user->setEmail('client@htmail.fr');
+        $user->setEmail('client@hotmail.fr');
         $user->setPassword('hash_de_mot_de_passe');
         $user->setApiToken('WTG-SECRET-KEY-TEST');
 
@@ -69,7 +69,7 @@ class UserTest extends TestCase
     public function testSerializeHacheLeMotDePasse(): void
     {
         $user = new User();
-        $user->setEmail('client@htmail.fr');
+        $user->setEmail('client@hotmail.fr');
         $user->setPassword('hash_de_mot_de_passe');
 
         $data = $user->__serialize();

@@ -87,7 +87,7 @@ class AppFixtures extends Fixture
         // Ce user a ROLE_USER → il N'A PAS accès à l'application Java
         // Il peut seulement se connecter au site Symfony (le léger)
         $client = new User();
-        $client->setEmail('client@htmail.fr');
+        $client->setEmail('client@hotmail.fr');
         $client->setRoles(['ROLE_CLIENT']);
         $client->setPassword($this->passwordHasher->hashPassword($client, 'Client123!'));
         $client->setApiToken($this->apiToken);
