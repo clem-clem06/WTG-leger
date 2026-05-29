@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\OrderRepository;
-use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -34,13 +33,13 @@ class Order
     private ?string $status = null;
 
     #[ORM\Column]
-    private ?DateTimeImmutable $createdAt = null;
+    private ?\DateTimeImmutable $createdAt = null;
 
     public function __construct()
     {
         $this->orderItems = new ArrayCollection();
         $this->payments = new ArrayCollection();
-        $this->createdAt = new DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -56,6 +55,7 @@ class Order
     public function setUser(?User $user): static
     {
         $this->user = $user;
+
         return $this;
     }
 
@@ -65,6 +65,7 @@ class Order
             $this->orderItems->add($orderItem);
             $orderItem->setOrderRef($this);
         }
+
         return $this;
     }
 
@@ -73,6 +74,7 @@ class Order
         if ($this->orderItems->removeElement($orderItem) && $orderItem->getOrderRef() === $this) {
             $orderItem->setOrderRef(null);
         }
+
         return $this;
     }
 
@@ -82,6 +84,7 @@ class Order
             $this->payments->add($payment);
             $payment->setOrderRef($this);
         }
+
         return $this;
     }
 
@@ -90,6 +93,7 @@ class Order
         if ($this->payments->removeElement($payment) && $payment->getOrderRef() === $this) {
             $payment->setOrderRef(null);
         }
+
         return $this;
     }
 
@@ -101,6 +105,7 @@ class Order
     public function setTotal(int $total): static
     {
         $this->total = $total;
+
         return $this;
     }
 
@@ -112,17 +117,19 @@ class Order
     public function setStatus(string $status): static
     {
         $this->status = $status;
+
         return $this;
     }
 
-    public function getCreatedAt(): DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTimeImmutable $createdAt): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 

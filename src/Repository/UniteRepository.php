@@ -57,7 +57,7 @@ class UniteRepository extends ServiceEntityRepository
     }
 
     /**
-     * Récupère des unités disponibles et les VERROUILLE pour éviter les conflits (Race Condition)
+     * Récupère des unités disponibles et les VERROUILLE pour éviter les conflits (Race Condition).
      */
     public function findAndLockAvailableUnites(int $limit): array
     {
@@ -70,7 +70,7 @@ class UniteRepository extends ServiceEntityRepository
     }
 
     /**
-     * Récupère les unités du client avec leurs baies et interventions en 1 requête
+     * Récupère les unités du client avec leurs baies et interventions en 1 requête.
      */
     public function findDashboardUnites($user): array
     {
@@ -84,7 +84,7 @@ class UniteRepository extends ServiceEntityRepository
     }
 
     /**
-     * Récupère uniquement les unités d'un client spécifique (API)
+     * Récupère uniquement les unités d'un client spécifique (API).
      */
     public function findUserUnitesWithBaie($user): array
     {

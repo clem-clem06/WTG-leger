@@ -18,14 +18,13 @@ final class RegistrationController extends AbstractController
 {
     #[Route('/register', name: 'app_register')]
     #[IsGranted('ROLE_CLIENT')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager,RegistrationService $registrationService): Response
+    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager, RegistrationService $registrationService): Response
     {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             // APPEL AU SERVICE : On lui passe l'utilisateur et le mot de passe en clair du formulaire
             $registrationService->registerUser(
                 $user,

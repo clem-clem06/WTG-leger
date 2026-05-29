@@ -6,9 +6,8 @@ use App\Entity\CartItem;
 use App\Entity\Offre;
 use App\Form\AddToCartType;
 use App\Service\CartService;
-use InvalidArgumentException;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -38,11 +37,11 @@ final class CartController extends AbstractController
             try {
                 $cartService->addToCart($offre, $quantite, $duree);
                 if ($quantite > 1) {
-                    $this->addFlash('success', "$quantite offre) ajoutées pour $duree mois !");
+                    $this->addFlash('success', "$quantite offres ajoutée pour $duree mois !");
                 } else {
                     $this->addFlash('success', "$quantite offres ajoutées pour $duree mois !");
                 }
-            } catch (InvalidArgumentException $e) {
+            } catch (\InvalidArgumentException $e) {
                 $this->addFlash('danger', $e->getMessage());
             }
         } else {

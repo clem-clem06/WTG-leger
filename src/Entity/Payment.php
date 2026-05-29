@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\PaymentRepository;
-use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PaymentRepository::class)]
@@ -28,11 +27,11 @@ class Payment
     private ?string $gatewayResponse = null;
 
     #[ORM\Column]
-    private ?DateTimeImmutable $createdAt = null;
+    private ?\DateTimeImmutable $createdAt = null;
 
     public function __construct()
     {
-        $this->createdAt = new DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -48,6 +47,7 @@ class Payment
     public function setOrderRef(?Order $orderRef): static
     {
         $this->orderRef = $orderRef;
+
         return $this;
     }
 
@@ -59,6 +59,7 @@ class Payment
     public function setAmount(int $amount): static
     {
         $this->amount = $amount;
+
         return $this;
     }
 
@@ -70,6 +71,7 @@ class Payment
     public function setStatus(string $status): static
     {
         $this->status = $status;
+
         return $this;
     }
 
@@ -81,17 +83,19 @@ class Payment
     public function setGatewayResponse(?string $gatewayResponse): static
     {
         $this->gatewayResponse = $gatewayResponse;
+
         return $this;
     }
 
-    public function getCreatedAt(): ?DateTimeImmutable
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTimeImmutable $createdAt): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 }

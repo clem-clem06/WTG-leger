@@ -20,14 +20,14 @@ class AddToCartType extends AbstractType
                 'data' => 1,
                 'constraints' => [
                     new NotBlank(),
-                    new GreaterThanOrEqual(1)
-                ]
+                    new GreaterThanOrEqual(1),
+                ],
             ])
             ->add('duree', HiddenType::class, [
                 'data' => 1,
                 'constraints' => [
                     new NotBlank(),
-                    new Range(min: 1, max: 60)]
+                    new Range(min: 1, max: 60)],
             ]);
     }
 

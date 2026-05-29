@@ -4,25 +4,22 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\CheckoutType;
+use App\Repository\CardRepository;
 use App\Repository\CartRepository;
-use InvalidArgumentException;
-use RuntimeException;
+use App\Service\CheckoutService;
+use App\Service\PaymentService;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use App\Service\CheckoutService;
-use App\Service\PaymentService;
-use Throwable;
-use Psr\Log\LoggerInterface;
-use App\Repository\CardRepository;
 
 #[IsGranted('ROLE_CLIENT')]
 final class CheckoutController extends AbstractController
 {
     #[Route('/checkout', name: 'app_checkout')]
-    public function index(CartRepository $cartRepository, CardRepository $cardRepository,Request $request, PaymentService $paymentService, CheckoutService $checkoutService, LoggerInterface $logger): Response
+    public function index(CartRepository $cartRepository, CardRepository $cardRepository, Request $request, PaymentService $paymentService, CheckoutService $checkoutService, LoggerInterface $logger): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -45,22 +42,24 @@ final class CheckoutController extends AbstractController
                 [$fakeBankToken, $last4] = $paymentService->processCard($data, $user);
 
                 // 2. Le CheckoutService s'occupe de générer la commande et verrouiller le stock
-                $checkoutService->processCheckout($user, $cart, $fakeBankToken, $last4, (bool)null);
+                $checkoutService->processCheckout($user, $cart, $fakeBankToken, $last4, (bool) null);
 
                 $this->addFlash('success', 'Paiement réussi ! Vos unités ont été attribuées.');
-                return $this->redirectToRoute('app_customer');
 
-            } catch (InvalidArgumentException $e) {
+                return $this->redirectToRoute('app_customer');
+            } catch (\InvalidArgumentException $e) {
                 // ERREUR DE CARTE -> On reste sur la page et on affiche l'erreur
                 $this->addFlash('danger', $e->getMessage());
-            } catch (RuntimeException $e) {
+            } catch (\RuntimeException $e) {
                 // ERREUR DE STOCK -> On renvoie au panier
                 $this->addFlash('danger', $e->getMessage());
+
                 return $this->redirectToRoute('app_cart');
-            } catch (Throwable $e) {
+            } catch (\Throwable $e) {
                 // ERREUR CRITIQUE -> Log + Message safe
-                $logger->error('ERREUR CRITIQUE PAIEMENT : ' . $e->getMessage());
+                $logger->error('ERREUR CRITIQUE PAIEMENT : '.$e->getMessage());
                 $this->addFlash('danger', 'Une erreur technique inattendue est survenue. Aucun prélèvement n\'a été effectué. Veuillez réessayer plus tard.');
+
                 return $this->redirectToRoute('app_cart');
             }
         }
@@ -74,8 +73,8 @@ final class CheckoutController extends AbstractController
         ]);
     }
 
-    #[Route('/checkout/virement', name: 'app_checkout_virement',methods: ['POST'])]
-    public function prosseceVirement(CheckoutService $checkoutService, CartRepository $cartRepository): Response
+    #[Route('/checkout/virement', name: 'app_checkout_virement', methods: ['POST'])]
+    public function processVirement(CheckoutService $checkoutService, CartRepository $cartRepository): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -85,16 +84,19 @@ final class CheckoutController extends AbstractController
             return $this->redirectToRoute('app_cart');
         }
 
-            try {
-                $checkoutService->processCheckout($user, $cart, null, null, true);
-                $this->addFlash('warning', 'Votre commande a été enregistrée avec succès. Veuillez effectuer le virement bancaire en utilisant les informations fournies, puis attendez la validation de votre paiement par notre équipe.');
-                return $this->redirectToRoute('app_customer');
-            } catch (RuntimeException $e) {
-                $this->addFlash('danger', $e->getMessage());
-                return $this->redirectToRoute('app_cart');
-            } catch (Throwable) {
-                $this->addFlash('danger', 'Une erreur technique inattendue est survenue. Veuillez réessayer plus tard.');
-                return $this->redirectToRoute('app_cart');
-            }
+        try {
+            $checkoutService->processCheckout($user, $cart, null, null, true);
+            $this->addFlash('warning', 'Votre commande a été enregistrée avec succès. Veuillez effectuer le virement bancaire en utilisant les informations fournies, puis attendez la validation de votre paiement par notre équipe.');
+
+            return $this->redirectToRoute('app_customer');
+        } catch (\RuntimeException $e) {
+            $this->addFlash('danger', $e->getMessage());
+
+            return $this->redirectToRoute('app_cart');
+        } catch (\Throwable) {
+            $this->addFlash('danger', 'Une erreur technique inattendue est survenue. Veuillez réessayer plus tard.');
+
+            return $this->redirectToRoute('app_cart');
+        }
     }
 }

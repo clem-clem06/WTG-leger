@@ -14,7 +14,7 @@ class OrderRepository extends ServiceEntityRepository
     }
 
     /**
-     * Récupère les commandes du client avec les détails des produits en 1 requête
+     * Récupère les commandes du client avec les détails des produits en 1 requête.
      */
     public function findDashboardOrders($user): array
     {

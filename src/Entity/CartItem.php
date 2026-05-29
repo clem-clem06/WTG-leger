@@ -43,6 +43,7 @@ class CartItem
     public function setCart(?Cart $cart): static
     {
         $this->cart = $cart;
+
         return $this;
     }
 
@@ -54,6 +55,7 @@ class CartItem
     public function setOffre(?Offre $offre): static
     {
         $this->offre = $offre;
+
         return $this;
     }
 
@@ -65,6 +67,7 @@ class CartItem
     public function setQuantity(int $quantity): static
     {
         $this->quantity = $quantity;
+
         return $this;
     }
 
@@ -76,6 +79,7 @@ class CartItem
     public function setPrice(int $price): static
     {
         $this->price = $price;
+
         return $this;
     }
 

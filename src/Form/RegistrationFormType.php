@@ -33,13 +33,13 @@ class RegistrationFormType extends AbstractType
                 'type' => PasswordType::class,
                 'mapped' => false,
                 'invalid_message' => 'Les mots de passe doivent être identiques.',
-                'first_options'  => [
+                'first_options' => [
                     'label' => 'Mot de passe',
-                    'attr' => ['class' => 'password-field']
+                    'attr' => ['class' => 'password-field'],
                 ],
                 'second_options' => [
                     'label' => 'Confirmez le mot de passe',
-                    'attr' => ['class' => 'password-confirm-field']
+                    'attr' => ['class' => 'password-confirm-field'],
                 ],
                 'constraints' => [
                     new NotBlank(
@@ -53,7 +53,7 @@ class RegistrationFormType extends AbstractType
                     new Regex(
                         pattern: '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
                         message: 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial (@$!%*?&).'
-                    )
+                    ),
                 ],
             ])
         ;

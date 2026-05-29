@@ -21,20 +21,20 @@ class CheckoutType extends AbstractType
             // Les champs de la nouvelle carte
             ->add('cardNumber', TextType::class, [
                 'required' => false,
-                'attr' => ['placeholder' => '0000 0000 0000 0000', 'maxlength' => 19]
+                'attr' => ['placeholder' => '0000 0000 0000 0000', 'maxlength' => 19],
             ])
             ->add('expDate', TextType::class, [
                 'required' => false,
-                'attr' => ['placeholder' => 'MM/AA', 'maxlength' => 5]
+                'attr' => ['placeholder' => 'MM/AA', 'maxlength' => 5],
             ])
             ->add('cvv', TextType::class, [
                 'required' => false,
-                'attr' => ['placeholder' => '123', 'maxlength' => 3]
+                'attr' => ['placeholder' => '123', 'maxlength' => 3],
             ])
             // La case à cocher pour sauvegarder la carte
             ->add('saveCard', CheckboxType::class, [
                 'required' => false,
-                'label' => 'Sauvegarder cette carte pour mes prochains achats'
+                'label' => 'Sauvegarder cette carte pour mes prochains achats',
             ]);
     }
 

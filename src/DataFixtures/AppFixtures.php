@@ -3,8 +3,8 @@
 namespace App\DataFixtures;
 
 use App\Entity\Baie;
-use App\Entity\Unite;
 use App\Entity\Offre;
+use App\Entity\Unite;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -17,8 +17,8 @@ class AppFixtures extends Fixture
         private UserPasswordHasherInterface $passwordHasher,
         #[Autowire(env: 'API_TOKEN_CLIENT')]
         private string $apiToken,
-    ) {}
-
+    ) {
+    }
 
     public function load(ObjectManager $manager): void
     {
@@ -48,15 +48,15 @@ class AppFixtures extends Fixture
         // ════════════════════════════════════════════════════════════
         //  2. BAIES ET UNITÉS  (30 baies × 42 unités = 1260 unités)
         // ════════════════════════════════════════════════════════════
-        for ($b = 1; $b <= 30; $b++) {
+        for ($b = 1; $b <= 30; ++$b) {
             $baie = new Baie();
             // str_pad → ajoute des zéros : 1 → "001"  donc "B001"
-            $baie->setReference('B' . str_pad((string)$b, 3, '0', STR_PAD_LEFT));
+            $baie->setReference('B'.str_pad((string) $b, 3, '0', STR_PAD_LEFT));
             $manager->persist($baie);
 
-            for ($u = 1; $u <= 42; $u++) {
+            for ($u = 1; $u <= 42; ++$u) {
                 $unite = new Unite();
-                $unite->setNumero('U' . str_pad((string)$u, 2, '0', STR_PAD_LEFT));
+                $unite->setNumero('U'.str_pad((string) $u, 2, '0', STR_PAD_LEFT));
                 $unite->setEtat('OK');
                 $unite->setBaie($baie);
                 $manager->persist($unite);
