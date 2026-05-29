@@ -109,6 +109,7 @@ class card <<table>> {
 
 class intervention <<table>> {
     <b>PK</b> id : INT AUTO_INCREMENT
+    <b>FK</b> technicien_id : INT NULL
     --
     type : VARCHAR(255) NOT NULL
     description : TEXT NOT NULL
@@ -128,6 +129,7 @@ user "1" --o "0..*" cart : user_id
 user "1" --o "0..*" app_order : user_id
 user "1" --o "0..*" card : user_id
 user "1" --o "0..*" unite : locataire_id
+user "1" --o "0..*" intervention : technicien_id
 
 cart "1" --o "0..*" cart_item : cart_id
 offre "1" --o "0..*" cart_item : offre_id

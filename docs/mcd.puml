@@ -114,6 +114,7 @@ USER ||--o{ CART : "possède"
 USER ||--o{ CMD : "passe"
 USER ||--o{ CARD : "enregistre"
 USER ||--o{ UNITE : "loue"
+USER ||--o{ INTERVENTION : "réalise"
 
 CART ||--o{ CART_ITEM : "contient"
 CART_ITEM }o--|| OFFRE : "concerne"
@@ -128,6 +129,7 @@ UNITE }o--o{ INTERVENTION : "subit"
 note bottom of USER
   Rôles : ROLE_ADMIN, ROLE_COMPTABLE, ROLE_CLIENT
   apiToken : authentification API REST stateless
+  Un technicien (ROLE_ADMIN) réalise les interventions
 end note
 
 note bottom of OFFRE
