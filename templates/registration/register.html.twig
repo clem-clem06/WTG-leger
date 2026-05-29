@@ -56,8 +56,9 @@
                     {{ form_end(registrationForm) }}
 
                     <div class="text-center mt-4">
-                        <a href="{{ path('app_login') }}" class="text-decoration-none text-muted small">
-                            Déjà un compte ? Connectez-vous
+                        <p class="text-muted small mb-2">Déjà un compte ?</p>
+                        <a href="{{ path('app_login') }}" class="btn btn-outline-secondary w-100 rounded-pill fw-semibold">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
                         </a>
                     </div>
                 </div>

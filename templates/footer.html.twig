@@ -1,5 +1,47 @@
-<footer class="bg-dark text-white-50 py-4 text-center mt-auto">
+<footer class="site-footer mt-auto py-5">
     <div class="container">
-        <p class="mb-0">&copy; 2026 WorkTogether Data Solutions. Tous droits réservés.</p>
+        <div class="row g-4 pb-4">
+            <div class="col-lg-4">
+                <div class="site-footer__brand mb-3">WorkTogether</div>
+                <p class="site-footer__tagline">
+                    Datacenter de référence en France. Hébergement sécurisé,
+                    haute disponibilité et connectivité ultrarapide pour vos
+                    infrastructures critiques.
+                </p>
+                <div class="d-flex gap-2 mt-3 flex-wrap">
+                    <span class="site-footer__badge"><i class="bi bi-shield-check"></i> ISO 27001</span>
+                    <span class="site-footer__badge"><i class="bi bi-patch-check"></i> Tier III</span>
+                    <span class="site-footer__badge"><i class="bi bi-recycle"></i> Green DC</span>
+                </div>
+            </div>
+            <div class="col-6 col-lg-2 offset-lg-1">
+                <div class="site-footer__heading">Services</div>
+                <a href="{{ path('app_home') }}#offres" class="site-footer__link">Nos offres</a>
+                <a href="{{ path('app_home') }}" class="site-footer__link">Colocation</a>
+                <a href="{{ path('app_home') }}" class="site-footer__link">Connectivité</a>
+                <a href="{{ path('app_home') }}" class="site-footer__link">Support 24/7</a>
+            </div>
+            <div class="col-6 col-lg-2">
+                <div class="site-footer__heading">Compte</div>
+                {% if app.user %}
+                    <a href="{{ path('app_customer') }}" class="site-footer__link">Mon espace</a>
+                    <a href="{{ path('app_logout') }}" class="site-footer__link">Déconnexion</a>
+                {% else %}
+                    <a href="{{ path('app_login') }}" class="site-footer__link">Connexion</a>
+                    <a href="{{ path('app_register') }}" class="site-footer__link">Inscription</a>
+                {% endif %}
+            </div>
+            <div class="col-lg-2">
+                <div class="site-footer__heading">Contact</div>
+                <a href="mailto:contact@worktogether.fr" class="site-footer__link">contact@worktogether.fr</a>
+                <a href="tel:+33180000000" class="site-footer__link">+33 1 80 00 00 00</a>
+                <span class="site-footer__link" style="cursor:default">Paris, France</span>
+            </div>
+        </div>
+        <hr class="site-footer__divider">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 pt-2">
+            <p class="site-footer__copy mb-0">&copy; 2026 WorkTogether Data Solutions. Tous droits réservés.</p>
+            <p class="site-footer__copy mb-0">Hébergement souverain &bull; Données en France</p>
+        </div>
     </div>
 </footer>

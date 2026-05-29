@@ -40,15 +40,16 @@
                                 <label class="btn btn-outline-primary w-100 p-3 h-100 d-flex flex-column align-items-center justify-content-center" for="radio-mensuel">
                                     <i class="bi bi-calendar-month fs-3 mb-2"></i>
                                     <span class="fw-bold">Mensuel</span>
-                                    <small class="text-muted mt-1">{{ offre.prixMensuel|number_format(0, ',', ' ') }} € / mois</small>                                </label>
+                                    <small class="text-muted mt-1">{{ (offre.prixMensuel / 100)|number_format(0, ',', ' ') }} € / mois</small>
+                                </label>
                             </div>
                             <div class="col-6">
                                 <input type="radio" class="btn-check" name="type_abonnement" id="radio-annuel" autocomplete="off">
                                 <label class="btn btn-outline-primary w-100 p-3 h-100 d-flex flex-column align-items-center justify-content-center position-relative" for="radio-annuel">
-                                    <span class="badge bg-danger position-absolute top-0 start-50 translate-middle mt-2" style="font-size: 0.7rem;">2 MOIS OFFERTS</span>
+                                    <span class="badge bg-danger position-absolute top-0 start-50 translate-middle mt-2 badge-promo">2 MOIS OFFERTS</span>
                                     <i class="bi bi-calendar-star fs-3 mb-2 mt-2"></i>
                                     <span class="fw-bold">Annuel</span>
-                                    <small class="text-muted mt-1">{{ (offre.prixMensuel * 10)|number_format(0, ',', ' ') }} € / an</small>
+                                    <small class="text-muted mt-1">{{ (offre.prixAnnuel / 100)|number_format(0, ',', ' ') }} € / an</small>
                                 </label>
                             </div>
                         </div>
@@ -80,7 +81,7 @@
 
                         <div class="d-grid mt-4">
                             <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm">
-                                <i class="fas fa-shopping-cart me-2"></i> Ajouter au panier
+                                <i class="bi bi-cart-plus me-2"></i> Ajouter au panier
                             </button>
                         </div>
 

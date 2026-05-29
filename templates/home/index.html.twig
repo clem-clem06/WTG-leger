@@ -1,116 +1,368 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Accueil - WorkTogether Data Solutions{% endblock %}
+{% block title %}WorkTogether Data Solutions — Datacenter de référence{% endblock %}
 
 {% block body %}
-    <div class="bg-dark text-white py-5 mb-5">
-        <div class="container py-5 text-center">
-            <h1 class="display-4 fw-bold mb-4">WorkTogether Data Solutions</h1>
-            <p class="lead w-75 mx-auto mb-5">
-                Spécialiste dans la gestion de datacenters de pointe. Nous vous offrons une connectivité ultrarapide, une redondance électrique absolue et une sécurité physique et électronique de premier plan pour héberger vos infrastructures critiques.
-            </p>
-            <a href="#offres" class="btn btn-primary btn-lg px-5">Voir nos offres</a>
+
+{# ═══════════════════════════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════════════════════════ #}
+<section class="hero">
+    <div class="container hero__inner">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <div class="hero__tag">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    Datacenter Tier III — Paris, France
+                </div>
+                <h1 class="hero__title">
+                    L'infrastructure dont votre<br>
+                    <span class="hero__title--accent">entreprise a besoin</span>
+                </h1>
+                <p class="hero__sub">
+                    WorkTogether Data Solutions opère un datacenter de dernière génération
+                    au cœur de Paris. Hébergez vos serveurs dans un environnement
+                    ultra-sécurisé, redondant et connecté à 10 Gbps — avec un engagement
+                    de disponibilité à <strong>99,99 %</strong>.
+                </p>
+                <div class="hero__actions">
+                    <a href="#offres" class="btn btn-primary btn-lg rounded-pill px-4">
+                        <i class="bi bi-grid-3x3-gap me-2"></i>Voir les offres
+                    </a>
+                    <a href="{{ path('app_register') }}" class="btn btn-outline-light btn-lg rounded-pill px-4">
+                        Créer un compte
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="hero__visual">
+                    <div class="hero__stat-row">
+                        <div class="hero__stat">
+                            <div class="hero__stat-icon"><i class="bi bi-hdd-rack"></i></div>
+                            <div>
+                                <div class="hero__stat-val">{{ totalBaies }} baies</div>
+                                <div class="hero__stat-lbl">Infrastructures actives</div>
+                            </div>
+                        </div>
+                        <div class="hero__stat">
+                            <div class="hero__stat-icon"><i class="bi bi-cpu"></i></div>
+                            <div>
+                                <div class="hero__stat-val">{{ unitesDispo }} U</div>
+                                <div class="hero__stat-lbl">Unités disponibles à la location</div>
+                            </div>
+                        </div>
+                        <div class="hero__stat">
+                            <div class="hero__stat-icon"><i class="bi bi-activity"></i></div>
+                            <div>
+                                <div class="hero__stat-val">99,99 %</div>
+                                <div class="hero__stat-lbl">SLA de disponibilité garanti</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+</section>
 
-    <div class="container mb-5">
+{# ═══════════════════════════════════════════════════════════════
+   TRUST ROW
+   ═══════════════════════════════════════════════════════════════ #}
+<div class="trust-row">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-center gap-4 flex-wrap">
+            <div class="trust-item"><i class="bi bi-shield-lock-fill"></i> ISO 27001 certifié</div>
+            <div class="trust-sep d-none d-md-block"></div>
+            <div class="trust-item"><i class="bi bi-lightning-fill"></i> Alimentation redondante N+1</div>
+            <div class="trust-sep d-none d-md-block"></div>
+            <div class="trust-item"><i class="bi bi-speedometer2"></i> Connectivité 10 Gbps</div>
+            <div class="trust-sep d-none d-md-block"></div>
+            <div class="trust-item"><i class="bi bi-headset"></i> Support 24h/7j/365j</div>
+            <div class="trust-sep d-none d-md-block"></div>
+            <div class="trust-item"><i class="bi bi-geo-alt-fill"></i> Hébergement souverain France</div>
+        </div>
+    </div>
+</div>
 
-        <div class="row align-items-center mb-5 pb-5 border-bottom">
+{# ═══════════════════════════════════════════════════════════════
+   COMPRENDRE NOS INFRASTRUCTURES
+   ═══════════════════════════════════════════════════════════════ #}
+<section class="py-6 my-5">
+    <div class="container">
+        <div class="row align-items-center g-5 mb-5">
             <div class="col-lg-7">
-                <h2 class="fw-bold mb-4">Comprendre nos infrastructures</h2>
-                <p class="text-muted fs-5 mb-4">
-                    Pour garantir la sécurité et la performance de vos équipements, nous utilisons des standards industriels précis. Mais qu'est-ce que cela signifie concrètement pour l'hébergement de vos serveurs ?
+                <div class="section-label">Notre infrastructure</div>
+                <h2 class="section-title mb-3">Comprendre nos standards techniques</h2>
+                <p class="section-sub mb-4">
+                    Pour garantir la sécurité et la performance de vos équipements, nous
+                    utilisons des standards industriels précis. Voici ce que cela signifie
+                    concrètement pour l'hébergement de vos serveurs.
                 </p>
-
-                <div class="mb-4">
-                    <h4 class="text-primary fw-bold">🗄️ Qu'est-ce qu'une Baie ?</h4>
-                    <p class="text-muted">
-                        Une baie (souvent appelée <em>rack</em>) est une grande armoire métallique sécurisée, climatisée et alimentée électriquement de manière redondante. Elle sert à empiler et organiser vos serveurs, routeurs et équipements de stockage. WorkTogether possède <strong>{{ totalBaies }} baies de dernière génération</strong> dans son datacenter.
-                    </p>
-                </div>
-
-                <div>
-                    <h4 class="text-primary fw-bold">📏 Qu'est-ce qu'une Unité (U) ?</h4>
-                    <p class="text-muted">
-                        L'Unité (notée "U") est la mesure standard de hauteur dans un datacenter. 1U équivaut à 1,75 pouce (environ 4,45 cm). Nos baies mesurent <strong>42U de hauteur</strong>. Cela vous permet de louer l'espace exact dont vous avez besoin : de 1U pour un petit serveur web, jusqu'à 42U (la baie complète) pour une grande infrastructure.
-                    </p>
-                </div>
-            </div>
-
-            <div class="col-lg-5 text-center mt-4 mt-lg-0">
-                <div class="bg-light p-5 rounded-4 border shadow-sm">
-                    <h3 class="fw-bold text-dark mb-3">Une flexibilité totale</h3>
-                    <p class="text-muted mb-4">
-                        Que vous soyez une Start-up ayant besoin d'un seul espace ou une PME nécessitant la moitié d'une armoire, nos formules s'adaptent à la taille de votre matériel physique.
-                    </p>
-                    <a href="#offres" class="btn btn-outline-primary w-100">Découvrir nos formules</a>
-                </div>
-            </div>
-        </div>
-
-        {# STATISTIQUES #}
-        <div class="row text-center mb-5 g-4">
-            <div class="col-md-4">
-                <div class="card bg-light border-0 shadow-sm h-100 py-3">
-                    <div class="card-body">
-                        <h5 class="text-muted">Infrastructures</h5>
-                        <h2 class="display-5 fw-bold text-primary">{{ totalBaies }} Baie{% if totalBaies > 1 %}s{% endif %}</h2>
-                        <p class="mb-0">Hautement sécurisées</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="infra-highlight">
+                            <div class="infra-highlight__icon"><i class="bi bi-hdd-rack-fill"></i></div>
+                            <div class="infra-highlight__title">Qu'est-ce qu'une Baie ?</div>
+                            <p class="infra-highlight__text">
+                                Une baie (ou <em>rack</em>) est une armoire métallique sécurisée,
+                                climatisée et alimentée électriquement de façon redondante. Elle
+                                organise et protège vos serveurs, routeurs et équipements de stockage.
+                                WorkTogether exploite <strong>{{ totalBaies }} baies</strong> de dernière génération.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="infra-highlight">
+                            <div class="infra-highlight__icon"><i class="bi bi-rulers"></i></div>
+                            <div class="infra-highlight__title">Qu'est-ce qu'une Unité (U) ?</div>
+                            <p class="infra-highlight__text">
+                                L'Unité (U) est la mesure standard de hauteur dans un datacenter :
+                                1U = 1,75 pouce (≈ 4,45 cm). Nos baies mesurent <strong>42U</strong>.
+                                Louez l'espace exact dont vous avez besoin — de 1U pour un serveur
+                                web jusqu'à 42U pour une infrastructure complète.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card bg-light border-0 shadow-sm h-100 py-3">
-                    <div class="card-body">
-                        <h5 class="text-muted">Capacité Totale</h5>
-                        <h2 class="display-5 fw-bold">{{ totalUnites }} Unité{% if totalUnites > 1 %}s{% endif %}</h2>
-                        <p class="mb-0">D'espace d'hébergement</p>
-                    </div>
+            <div class="col-lg-5">
+                <div class="card p-4 text-center">
+                    <h3 class="fw-bold mb-3">Une flexibilité totale</h3>
+                    <p class="text-muted mb-4 text-sm-body">
+                        Start-up avec un seul serveur ou entreprise nécessitant une baie
+                        entière — nos formules s'adaptent à vos besoins physiques et évoluent
+                        avec vous.
+                    </p>
+                    <a href="#offres" class="btn btn-outline-primary w-100 rounded-pill">
+                        Découvrir nos formules
+                    </a>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card bg-primary text-white border-0 shadow-sm h-100 py-3">
-                    <div class="card-body">
-                        <h5 class="text-white-50">Disponibilité</h5>
-                        <h2 class="display-5 fw-bold">{{ unitesDispo }} Unité{% if unitesDispo > 1 %}s{% endif %}</h2>
-                        <p class="mb-0">Restantes à la location</p>
+        </div>
+    </div>
+</section>
+
+{# ═══════════════════════════════════════════════════════════════
+   NOS ENGAGEMENTS
+   ═══════════════════════════════════════════════════════════════ #}
+<section class="py-5" class="section-bg">
+    <div class="container py-3">
+        <div class="text-center mb-5">
+            <div class="section-label">Pourquoi nous choisir</div>
+            <h2 class="section-title mb-3">Des engagements concrets, pas des promesses</h2>
+            <p class="section-sub mx-auto">
+                Chaque aspect de notre infrastructure est conçu pour garantir
+                la continuité de vos activités, même en cas d'incident majeur.
+            </p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-card__icon"><i class="bi bi-shield-check"></i></div>
+                    <div class="feature-card__title">Sécurité physique maximale</div>
+                    <p class="feature-card__text">
+                        Contrôle d'accès biométrique, vidéosurveillance 24h/24, gardiennage
+                        sur site et sas de sécurité à double authentification. Vos équipements
+                        ne sont accessibles qu'à vos équipes autorisées.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-card__icon"><i class="bi bi-lightning-charge"></i></div>
+                    <div class="feature-card__title">Alimentation N+1 redondante</div>
+                    <p class="feature-card__text">
+                        Double alimentation électrique sur chaque baie, groupes électrogènes
+                        autonomes 72h et UPS dimensionnés pour absorber toute coupure réseau.
+                        Zéro interruption liée à une panne de courant.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-card__icon"><i class="bi bi-wifi"></i></div>
+                    <div class="feature-card__title">Connectivité multi-opérateurs</div>
+                    <p class="feature-card__text">
+                        Fibre dédiée 10 Gbps avec routage BGP multi-opérateurs (Orange, SFR,
+                        Free). En cas de défaillance d'un opérateur, le trafic est
+                        automatiquement rerouté en moins de 30 secondes.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-card__icon"><i class="bi bi-thermometer-half"></i></div>
+                    <div class="feature-card__title">Climatisation de précision</div>
+                    <p class="feature-card__text">
+                        Systèmes de refroidissement à précision ±1°C, redondants et
+                        supervisés en temps réel. Température maintenue entre 18°C et 22°C
+                        pour une longévité optimale de vos équipements.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-card__icon"><i class="bi bi-graph-up-arrow"></i></div>
+                    <div class="feature-card__title">SLA 99,99 % de disponibilité</div>
+                    <p class="feature-card__text">
+                        Notre contrat de service garantit une disponibilité de 99,99 % par an,
+                        soit moins de 53 minutes d'indisponibilité tolérée. Tout dépassement
+                        donne lieu à des crédits de service automatiques.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-card__icon"><i class="bi bi-headset"></i></div>
+                    <div class="feature-card__title">Support expert 24h/7j/365j</div>
+                    <p class="feature-card__text">
+                        Une équipe d'ingénieurs certifiés répond à vos incidents en moins de
+                        15 minutes. Accès à distance via console KVM, interventions mains à
+                        main possibles sur rendez-vous à toute heure.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ═══════════════════════════════════════════════════════════════
+   STATISTIQUES
+   ═══════════════════════════════════════════════════════════════ #}
+<section class="py-5 my-2">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-label">Chiffres clés</div>
+            <h2 class="section-title">Notre capacité en temps réel</h2>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-6 col-md-4">
+                <div class="stat-card">
+                    <div class="stat-card__value">{{ totalBaies }}</div>
+                    <div class="stat-card__label">Baies actives</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4">
+                <div class="stat-card">
+                    <div class="stat-card__value">{{ totalUnites }}</div>
+                    <div class="stat-card__label">Unités totales</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4">
+                <div class="stat-card stat-card--accent">
+                    <div class="stat-card__value">{{ unitesDispo }}</div>
+                    <div class="stat-card__label">Disponibles maintenant</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ═══════════════════════════════════════════════════════════════
+   COMMENT ÇA FONCTIONNE
+   ═══════════════════════════════════════════════════════════════ #}
+<section class="py-5" class="section-bg">
+    <div class="container py-3">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+                <div class="section-label">Démarrage rapide</div>
+                <h2 class="section-title mb-3">Opérationnel en 3 étapes</h2>
+                <p class="section-sub">
+                    De la création de votre compte à l'accès à votre infrastructure,
+                    le processus est entièrement en ligne et ne prend que quelques minutes.
+                </p>
+            </div>
+            <div class="col-lg-6 offset-lg-1">
+                <div class="d-flex flex-column gap-4">
+                    <div class="step">
+                        <div class="step__num">1</div>
+                        <div>
+                            <div class="step__title">Choisissez votre offre</div>
+                            <p class="step__text">
+                                Sélectionnez le nombre d'unités adapté à votre infrastructure
+                                parmi nos quatre formules — de 1U pour un serveur unique à
+                                42U pour une baie complète. Mensuel ou annuel (−10 %).
+                            </p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step__num">2</div>
+                        <div>
+                            <div class="step__title">Validez votre paiement</div>
+                            <p class="step__text">
+                                Réglez en ligne par carte bancaire (débit immédiat) ou par virement
+                                bancaire (validation sous 2 à 5 jours ouvrés). Vos unités sont
+                                réservées dès la confirmation.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step__num">3</div>
+                        <div>
+                            <div class="step__title">Accédez à votre espace</div>
+                            <p class="step__text">
+                                Depuis votre tableau de bord, consultez vos unités assignées,
+                                les informations de baie, l'état de vos équipements et
+                                l'historique d'interventions en temps réel via notre API REST.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</section>
 
-        {# OFFRES #}
-        <div id="offres" class="text-center mb-5 pt-4">
-            <h2 class="fw-bold">Nos offres de location</h2>
-            <p class="text-muted">Choisissez la dimension qui correspond à votre projet.</p>
+{# ═══════════════════════════════════════════════════════════════
+   OFFRES
+   ═══════════════════════════════════════════════════════════════ #}
+<section id="offres" class="py-5 my-2">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-label">Tarifs</div>
+            <h2 class="section-title mb-3">Nos offres de colocation</h2>
+            <p class="section-sub mx-auto">
+                Des formules adaptées à chaque taille d'infrastructure. Tous les abonnements
+                incluent l'alimentation électrique, la connectivité et le support 24/7.
+            </p>
         </div>
-
-        <div class="row justify-content-center g-4 mb-5">
+        <div class="row justify-content-center g-4">
             {% for offre in offres %}
                 <div class="col-12 col-md-6 col-lg-3">
-                    <div class="card h-100 shadow-sm text-center border-primary">
-                        <div class="card-header bg-primary text-white py-3">
-                            <h3 class="my-0 fw-normal fs-4">{{ offre.nom }}</h3>
+                    <div class="offer-card">
+                        <div class="offer-card__head">
+                            <div class="offer-card__name">{{ offre.nom }}</div>
+                            <div class="offer-card__price">
+                                {{ (offre.prixMensuel / 100)|number_format(0, ',', ' ') }}<span class="offer-card__period"> €/mois</span>
+                            </div>
+                            <div class="offer-card__annual">ou {{ (offre.prixAnnuel / 100)|number_format(0, ',', ' ') }} €/an (−10 %)</div>
                         </div>
-                        <div class="card-body d-flex flex-column">
-                            <h4 class="card-title pricing-card-title fs-2">
-                                {{ (offre.prixMensuel / 100)|number_format(2, ',', ' ') }} €<small class="text-muted fw-light fs-6"> / mois</small>
-                            </h4>
-                            <p class="text-muted small mb-4">
-                                Soit {{ (offre.prixAnnuel / 100)|number_format(2, ',', ' ') }} € par an
-                            </p>
-
-                            <ul class="list-unstyled mt-3 mb-4">
+                        <div class="offer-card__body">
+                            <div class="offer-card__feature">
+                                <i class="bi bi-check-circle-fill"></i>
                                 {% if offre.nombreUnites > 1 %}
-                                    <li><strong>{{ offre.nombreUnites }}</strong> Unités incluses</li>
+                                    <strong>{{ offre.nombreUnites }} Unités</strong>&nbsp;incluses
                                 {% else %}
-                                    <li><strong>{{ offre.nombreUnites }}</strong> Unité incluse</li>
+                                    <strong>{{ offre.nombreUnites }} Unité</strong>&nbsp;incluse
                                 {% endif %}
-                                <li class="mt-2 text-success">✓ Support 24/7</li>
-                                <li>✓ Bande passante 10 Gbps</li>
-                            </ul>
-
-                            <a href="{{ path('app_offer_show', {'id': offre.id}) }}" class="btn btn-lg btn-outline-primary mt-auto w-100">Voir les formules</a>
+                            </div>
+                            <div class="offer-card__feature">
+                                <i class="bi bi-check-circle-fill"></i>Connectivité 10 Gbps
+                            </div>
+                            <div class="offer-card__feature">
+                                <i class="bi bi-check-circle-fill"></i>Alimentation N+1
+                            </div>
+                            <div class="offer-card__feature">
+                                <i class="bi bi-check-circle-fill"></i>Support 24/7
+                            </div>
+                            <div class="offer-card__feature">
+                                <i class="bi bi-check-circle-fill"></i>Accès API REST
+                            </div>
+                            <div class="offer-card__cta">
+                                <a href="{{ path('app_offer_show', {'id': offre.id}) }}" class="btn btn-dark w-100 rounded-pill">
+                                    Choisir cette offre
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -121,4 +373,31 @@
             {% endfor %}
         </div>
     </div>
+</section>
+
+{# ═══════════════════════════════════════════════════════════════
+   CTA FINAL
+   ═══════════════════════════════════════════════════════════════ #}
+<section class="py-5 mb-3">
+    <div class="container">
+        <div class="cta-banner">
+            <div class="cta-banner__inner">
+                <h2 class="cta-banner__title">Prêt à héberger votre infrastructure ?</h2>
+                <p class="cta-banner__sub">
+                    Rejoignez les entreprises qui font confiance à WorkTogether pour héberger
+                    leurs serveurs critiques. Démarrez en ligne en moins de 5 minutes.
+                </p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{{ path('app_register') }}" class="btn btn-primary btn-lg rounded-pill px-5">
+                        Ouvrir un compte gratuitement
+                    </a>
+                    <a href="#offres" class="btn btn-outline-light btn-lg rounded-pill px-4">
+                        Voir les tarifs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 {% endblock %}

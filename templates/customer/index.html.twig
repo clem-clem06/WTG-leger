@@ -8,7 +8,7 @@
         {# En-tête de la page #}
         <div class="row mb-4 align-items-center">
             <div class="col-md-8">
-                <h1 class="display-5 fw-bold text-primary mb-2">Mon Tableau de Bord</h1>
+                <h1 class="dashboard-title mb-2">Mon Tableau de Bord</h1>
                 <p class="lead text-muted mb-0">Bienvenue dans votre espace client, <strong>{{ user.email }}</strong>.</p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -17,6 +17,57 @@
                 </a>
             </div>
         </div>
+
+        {# Détection d'un paiement virement en attente #}
+        {% set hasPendingPayment = false %}
+        {% for order in orders %}
+            {% for payment in order.payments %}
+                {% if payment.status == 'pending' %}
+                    {% set hasPendingPayment = true %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+
+        {% if hasPendingPayment %}
+        <div class="rib-block">
+            <div class="rib-block__header">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                Virement en attente — à effectuer sous 14 jours
+            </div>
+            <div class="rib-block__body">
+                <p class="rib-block__note">
+                    Utilisez exactement les coordonnées ci-dessous et indiquez votre
+                    email en référence afin que notre équipe identifie votre règlement.
+                </p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="rib-field">
+                            <div class="rib-field__label">Bénéficiaire</div>
+                            <div class="rib-field__value">WorkTogether Data Solutions</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="rib-field">
+                            <div class="rib-field__label">BIC / SWIFT</div>
+                            <div class="rib-field__value rib-field__value--mono">BNPAFRPPXXX</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="rib-field">
+                            <div class="rib-field__label">IBAN</div>
+                            <div class="rib-field__value rib-field__value--mono">FR76 3000 6000 0112 3456 7890 189</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="rib-field">
+                            <div class="rib-field__label">Référence à indiquer</div>
+                            <div class="rib-field__value rib-field__value--mono">{{ user.email }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
         <div class="row g-4">
             <div class="col-lg-4">
@@ -90,13 +141,13 @@
                                                             <li class="mb-1">
                                                                 <span class="badge bg-light border text-dark me-1">{{ item.quantity }}x</span>
                                                                 <span class="fw-semibold">{{ item.offre.nom }}</span>
-                                                                <span class="text-muted">({{ item.dureeMois }} mois)</span>
+                                                                <span class="text-muted">({% if item.dureeMois >= 12 %}{{ (item.dureeMois / 12)|round(0, 'floor') }} {{ (item.dureeMois / 12) == 1 ? 'an' : 'ans' }}{% else %}{{ item.dureeMois }} mois{% endif %})</span>
                                                             </li>
                                                         {% endfor %}
                                                     </ul>
                                                     {% if payment.gatewayResponse %}
                                                         <div class="small text-info mt-2 fw-semibold">
-                                                            <i class="fas fa-info-circle me-1"></i>{{ payment.gatewayResponse }}
+                                                            <i class="bi bi-info-circle me-1"></i>{{ payment.gatewayResponse }}
                                                         </div>
                                                     {% endif %}
                                                 </td>
@@ -156,11 +207,11 @@
                                                 Serveur {{ unite.numero }}
                                                 <br>
                                                 {% if unite.baie %}
-                                                    <span class="badge bg-secondary mt-1 fw-normal" style="font-size: 0.75rem;">
+                                                    <span class="badge bg-secondary mt-1 fw-normal" class="badge-sm">
                                                         <i class="fas fa-server me-1"></i> Baie {{ unite.baie.id }}
                                                     </span>
                                                 {% else %}
-                                                    <span class="badge bg-light text-muted border mt-1 fw-normal" style="font-size: 0.75rem;">
+                                                    <span class="badge bg-light text-muted border mt-1 fw-normal" class="badge-sm">
                                                         <i class="fas fa-hourglass-half me-1"></i> Attribution en cours
                                                     </span>
                                                 {% endif %}

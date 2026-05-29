@@ -17,3 +17,10 @@
         transition: all 0.2s ease-in-out;
     }
 }
+
+/* Badge "2 MOIS OFFERTS" sur le bouton annuel */
+.badge-promo {
+    font-size: .65rem;
+    letter-spacing: .04em;
+    padding: .25em .6em;
+}
