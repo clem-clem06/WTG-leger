@@ -8,23 +8,22 @@ use App\Entity\Offre;
 use App\Entity\User;
 use App\Repository\CartRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 use Symfony\Bundle\SecurityBundle\Security;
 
 readonly class CartService
 {
     public function __construct(private EntityManagerInterface $em, private CartRepository $cartRepository, private Security $security)
     {
-
     }
 
     /**
-     * Petite fonction interne pour récupérer l'utilisateur facilement
+     * Petite fonction interne pour récupérer l'utilisateur facilement.
      */
     private function getUser(): User
     {
         /** @var User $user */
         $user = $this->security->getUser();
+
         return $user;
     }
 
@@ -39,13 +38,14 @@ readonly class CartService
             $this->em->persist($cart);
             $this->em->flush();
         }
+
         return $cart;
     }
 
     public function addToCart(Offre $offre, int $quantiteChoisie, int $dureeChoisie): void
     {
-        if ($quantiteChoisie < 1 || $dureeChoisie < 1 || $dureeChoisie > 60 || ($dureeChoisie > 9 && $dureeChoisie % 12 !== 0)) {
-            throw new InvalidArgumentException('Données saisies invalides.');
+        if ($quantiteChoisie < 1 || $dureeChoisie < 1 || $dureeChoisie > 60 || ($dureeChoisie > 9 && 0 !== $dureeChoisie % 12)) {
+            throw new \InvalidArgumentException('Données saisies invalides.');
         }
 
         $cart = $this->getOrCreateCart();
@@ -61,21 +61,57 @@ readonly class CartService
         if ($existingItem) {
             $existingItem->setQuantity($existingItem->getQuantity() + $quantiteChoisie);
         } else {
-            $prixCalcule = ($dureeChoisie >= 12 && $dureeChoisie % 12 === 0)
-                ? $offre->getPrixMensuel() * 10 * ($dureeChoisie / 12)
-                : $offre->getPrixMensuel() * $dureeChoisie;
-
             $cartItem = new CartItem();
             $cartItem->setOffre($offre);
             $cartItem->setQuantity($quantiteChoisie);
             $cartItem->setDureeMois($dureeChoisie);
-            $cartItem->setPrice($prixCalcule);
+            $cartItem->setPrice($this->computePrice($offre->getPrixMensuel(), $dureeChoisie));
 
             $cart->addCartItem($cartItem);
             $this->em->persist($cartItem);
         }
 
         $this->em->flush();
+    }
+
+    /**
+     * Calcule le prix d'une ligne (snapshot) à partir du tarif mensuel courant
+     * et de la durée choisie. À partir d'1 an, on applique la remise : 10 mois facturés / an.
+     */
+    public function computePrice(int $prixMensuel, int $dureeMois): int
+    {
+        return ($dureeMois >= 12 && 0 === $dureeMois % 12)
+            ? $prixMensuel * 10 * ($dureeMois / 12)
+            : $prixMensuel * $dureeMois;
+    }
+
+    /**
+     * Recalcule le prix de chaque ligne depuis le tarif courant de l'Offre
+     * et met à jour le panier si un tarif a évolué depuis l'ajout.
+     *
+     * @return bool true si au moins une ligne a été réajustée
+     */
+    public function refreshPricesIfOutdated(Cart $cart): bool
+    {
+        $hasChanged = false;
+
+        foreach ($cart->getCartItems() as $item) {
+            $prixActuel = $this->computePrice(
+                $item->getOffre()->getPrixMensuel(),
+                $item->getDureeMois()
+            );
+
+            if ($item->getPrice() !== $prixActuel) {
+                $item->setPrice($prixActuel);
+                $hasChanged = true;
+            }
+        }
+
+        if ($hasChanged) {
+            $this->em->flush();
+        }
+
+        return $hasChanged;
     }
 
     public function remove(CartItem $cartItem): void
@@ -113,11 +149,11 @@ readonly class CartService
         }
 
         $currentDuree = $cartItem->getDureeMois();
-        $isAnnuel = ($currentDuree >= 12 && $currentDuree % 12 === 0);
+        $isAnnuel = ($currentDuree >= 12 && 0 === $currentDuree % 12);
         $step = $isAnnuel ? 12 : 1;
         $warning = null;
 
-        if ($action === 'increase') {
+        if ('increase' === $action) {
             $newDuree = $currentDuree + $step;
             if (!$isAnnuel && $newDuree > 9) {
                 $warning = 'Passez sur une offre annuelle.';
@@ -136,11 +172,8 @@ readonly class CartService
 
         if ($newDuree >= 1) {
             $cartItem->setDureeMois($newDuree);
-            $offre = $cartItem->getOffre();
             $cartItem->setPrice(
-                ($newDuree >= 12 && $newDuree % 12 === 0)
-                    ? $offre->getPrixMensuel() * 10 * ($newDuree / 12)
-                    : $offre->getPrixMensuel() * $newDuree
+                $this->computePrice($cartItem->getOffre()->getPrixMensuel(), $newDuree)
             );
             $this->em->flush();
         }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Service;
 
 use App\Entity\Cart;
@@ -7,25 +8,28 @@ use App\Entity\OrderItem;
 use App\Entity\Payment;
 use App\Entity\User;
 use App\Repository\UniteRepository;
-use DateMalformedStringException;
-use DateTime;
-use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
-use RuntimeException;
 
 readonly class CheckoutService
 {
-    public function __construct(private EntityManagerInterface $em, private UniteRepository $uniteRepository)
+    public function __construct(private EntityManagerInterface $em, private UniteRepository $uniteRepository, private CartService $cartService)
     {
-
     }
 
     /**
-     * Traite la commande de A à Z (Coffre-fort SQL)
-     * @throws DateMalformedStringException
+     * Traite la commande de A à Z (Coffre-fort SQL).
+     *
+     * @throws \DateMalformedStringException
      */
-    public function processCheckout(User $user, Cart $cart, ?string $fakeBankToken, ?string $last4,bool $isVirement = false): void
+    public function processCheckout(User $user, Cart $cart, ?string $fakeBankToken, ?string $last4, bool $isVirement = false): void
     {
+        // 0. CONTRÔLE TARIFAIRE — on refuse de valider si les tarifs ont évolué
+        // depuis l'ajout au panier (snapshot devenu obsolète). Le panier est mis
+        // à jour, le client est renvoyé sur /cart pour re-vérifier le total.
+        if ($this->cartService->refreshPricesIfOutdated($cart)) {
+            throw new \RuntimeException('Les tarifs de votre panier ont été mis à jour. Merci de vérifier le nouveau total avant de valider la commande.');
+        }
+
         $this->em->beginTransaction();
 
         try {
@@ -59,8 +63,8 @@ readonly class CheckoutService
                 $payment->setGatewayResponse('Virement bancaire en attente de réception');
             } else {
                 $payment->setStatus('completed');
-                $tokenTrace = $fakeBankToken ? ' avec la carte finissant par ' . $last4 : '';
-                $payment->setGatewayResponse('Paiement réussi' . $tokenTrace);
+                $tokenTrace = $fakeBankToken ? ' avec la carte finissant par '.$last4 : '';
+                $payment->setGatewayResponse('Paiement réussi'.$tokenTrace);
 
                 $order->setStatus('payée');
             }
@@ -78,24 +82,24 @@ readonly class CheckoutService
             $unitesDisponibles = $this->uniteRepository->findAndLockAvailableUnites($totalUnitesRequises);
 
             if (count($unitesDisponibles) < $totalUnitesRequises) {
-                throw new RuntimeException('Désolé, notre stock est insuffisant pour valider l\'intégralité de votre panier.');
+                throw new \RuntimeException('Désolé, notre stock est insuffisant pour valider l\'intégralité de votre panier.');
             }
 
             $uniteIndex = 0;
             foreach ($cart->getCartItems() as $item) {
                 $unitesRequisesPourCetItem = $item->getOffre()->getNombreUnites() * $item->getQuantity();
-                $dateFin = new DateTime('+' . $item->getDureeMois() . ' months');
+                $dateFin = new \DateTime('+'.$item->getDureeMois().' months');
 
-                for ($i = 0; $i < $unitesRequisesPourCetItem; $i++) {
+                for ($i = 0; $i < $unitesRequisesPourCetItem; ++$i) {
                     $unite = $unitesDisponibles[$uniteIndex];
                     $unite->setLocataire($user);
                     $unite->setDateFinLocation($dateFin);
                     $this->em->persist($unite);
-                    if($isVirement){
+                    if ($isVirement) {
                         $unite->setEtat('en attente de paiement');
                     }
 
-                    $uniteIndex++;
+                    ++$uniteIndex;
                 }
             }
 
@@ -106,20 +110,19 @@ readonly class CheckoutService
 
             $this->em->flush();
             $this->em->commit();
-
-        } catch (RuntimeException $e) {
+        } catch (\RuntimeException $e) {
             $this->em->rollback();
             throw $e; // On renvoie l'erreur au Controller pour qu'il affiche le Flash
         }
     }
 
     /**
-     * Annule les commandes par virement de plus de 14 jours et libère les serveurs
+     * Annule les commandes par virement de plus de 14 jours et libère les serveurs.
      */
     public function cleanExpiredVirements(): void
     {
         // 1. On calcule la date limite (il y a 14 jours)
-        $limitDate = new DateTimeImmutable('-14 days');
+        $limitDate = new \DateTimeImmutable('-14 days');
 
         // 2. On cherche toutes les commandes "pending" plus vieilles que 14 jours
         $expiredOrders = $this->em->getRepository(Order::class)->createQueryBuilder('o')
@@ -136,7 +139,7 @@ readonly class CheckoutService
 
             // B. On passe ses paiements en annulés
             foreach ($order->getPayments() as $payment) {
-                if ($payment->getStatus() === 'pending') {
+                if ('pending' === $payment->getStatus()) {
                     $payment->setStatus('annulé');
                     $payment->setGatewayResponse('Annulé : Délai de 14 jours dépassé.');
                 }
@@ -152,7 +155,7 @@ readonly class CheckoutService
             // On cherche uniquement ses unités qui étaient "En attente de paiement"
             $unitesToFree = $this->uniteRepository->findBy([
                 'locataire' => $user,
-                'etat' => 'En attente de paiement'
+                'etat' => 'En attente de paiement',
             ], null, $unitesToFreeCount);
 
             foreach ($unitesToFree as $unite) {
