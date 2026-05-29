@@ -1,0 +1,27 @@
+{
+  "name": "symfony",
+  "version": "1.0.0",
+  "description": "SaaS de location d'unités serveur en datacenter. Tarification multi-tiers, panier d'achat, paiement CB + virement bancaire, espace client avec suivi des serveurs loués.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clem-clem06/WTG-leger.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/clem-clem06/WTG-leger/issues"
+  },
+  "homepage": "https://github.com/clem-clem06/WTG-leger#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
+  }
+}
