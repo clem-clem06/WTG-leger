@@ -6,6 +6,7 @@ use App\Entity\Baie;
 use App\Entity\Offre;
 use App\Entity\Unite;
 use App\Entity\User;
+use App\Enum\UniteEtat;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -57,7 +58,7 @@ class AppFixtures extends Fixture
             for ($u = 1; $u <= 42; ++$u) {
                 $unite = new Unite();
                 $unite->setNumero('U'.str_pad((string) $u, 2, '0', STR_PAD_LEFT));
-                $unite->setEtat('OK');
+                $unite->setEtat(UniteEtat::OK);
                 $unite->setBaie($baie);
                 $manager->persist($unite);
             }

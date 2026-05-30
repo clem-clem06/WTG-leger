@@ -7,6 +7,9 @@ use App\Entity\Order;
 use App\Entity\OrderItem;
 use App\Entity\Payment;
 use App\Entity\User;
+use App\Enum\OrderStatus;
+use App\Enum\PaymentStatus;
+use App\Enum\UniteEtat;
 use App\Repository\UniteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -42,7 +45,7 @@ readonly class CheckoutService
             $order = new Order();
             $order->setUser($user);
             $order->setTotal($total);
-            $order->setStatus('pending');
+            $order->setStatus(OrderStatus::PENDING);
 
             foreach ($cart->getCartItems() as $item) {
                 $orderItem = new OrderItem();
@@ -59,14 +62,14 @@ readonly class CheckoutService
             $payment->setAmount($total);
 
             if ($isVirement) {
-                $payment->setStatus('pending');
+                $payment->setStatus(PaymentStatus::PENDING);
                 $payment->setGatewayResponse('Virement bancaire en attente de réception');
             } else {
-                $payment->setStatus('completed');
+                $payment->setStatus(PaymentStatus::COMPLETED);
                 $tokenTrace = $fakeBankToken ? ' avec la carte finissant par '.$last4 : '';
                 $payment->setGatewayResponse('Paiement réussi'.$tokenTrace);
 
-                $order->setStatus('payée');
+                $order->setStatus(OrderStatus::PAID);
             }
 
             $this->em->persist($order);
@@ -96,7 +99,7 @@ readonly class CheckoutService
                     $unite->setDateFinLocation($dateFin);
                     $this->em->persist($unite);
                     if ($isVirement) {
-                        $unite->setEtat('en attente de paiement');
+                        $unite->setEtat(UniteEtat::EN_ATTENTE_PAIEMENT);
                     }
 
                     ++$uniteIndex;
@@ -128,19 +131,19 @@ readonly class CheckoutService
         $expiredOrders = $this->em->getRepository(Order::class)->createQueryBuilder('o')
             ->where('o.status = :status')
             ->andWhere('o.createdAt <= :limit')
-            ->setParameter('status', 'pending')
+            ->setParameter('status', OrderStatus::PENDING)
             ->setParameter('limit', $limitDate)
             ->getQuery()
             ->getResult();
 
         foreach ($expiredOrders as $order) {
             // A. On passe la commande en annulée
-            $order->setStatus('annulée');
+            $order->setStatus(OrderStatus::CANCELLED);
 
             // B. On passe ses paiements en annulés
             foreach ($order->getPayments() as $payment) {
-                if ('pending' === $payment->getStatus()) {
-                    $payment->setStatus('annulé');
+                if (PaymentStatus::PENDING === $payment->getStatus()) {
+                    $payment->setStatus(PaymentStatus::CANCELLED);
                     $payment->setGatewayResponse('Annulé : Délai de 14 jours dépassé.');
                 }
             }
@@ -152,16 +155,17 @@ readonly class CheckoutService
                 $unitesToFreeCount += $item->getOffre()->getNombreUnites() * $item->getQuantity();
             }
 
-            // On cherche uniquement ses unités qui étaient "En attente de paiement"
+            // On cherche uniquement ses unités qui étaient "en attente de paiement"
+            // (constante partagée → plus de bug de casse avec l'écriture)
             $unitesToFree = $this->uniteRepository->findBy([
                 'locataire' => $user,
-                'etat' => 'En attente de paiement',
+                'etat' => UniteEtat::EN_ATTENTE_PAIEMENT,
             ], null, $unitesToFreeCount);
 
             foreach ($unitesToFree as $unite) {
                 $unite->setLocataire(null);
                 $unite->setDateFinLocation(null);
-                $unite->setEtat('OK');
+                $unite->setEtat(UniteEtat::OK);
             }
         }
 
