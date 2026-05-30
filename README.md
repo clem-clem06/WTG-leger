@@ -1,18 +1,27 @@
-# WorkTogether — Plateforme de location de baies datacenter
+# WorkTogether — Site client (WTG-leger)
 
-SaaS de location d'unités serveur en datacenter. Tarification multi-tiers, panier d'achat, paiement CB + virement bancaire, espace client avec suivi des serveurs loués.
+Plateforme web de location d'unités serveur en datacenter : catalogue d'offres,
+panier, paiement carte + virement bancaire, espace client avec suivi des serveurs loués
+et API REST.
+
+> **Écosystème WorkTogether** — ce dépôt est le **client léger** (site web Symfony, destiné
+> aux clients). Il partage sa base de données avec le **client lourd**
+> [`WTG-lourd`](https://github.com/clem-clem06/WTG-lourd) (application JavaFX d'administration
+> pour le personnel : admin, comptable, technicien).
 
 ---
 
 ## Stack technique
 
-| Couche   | Techno                          |
-|----------|---------------------------------|
-| Backend  | PHP 8.4 + Symfony 8.0           |
-| ORM      | Doctrine 3.6 + Migrations       |
-| BDD      | MySQL 8                         |
-| Frontend | Twig + Bootstrap 5 + AssetMapper |
-| JS       | Stimulus + Turbo                |
+| Couche    | Techno                            |
+|-----------|-----------------------------------|
+| Backend   | PHP 8.4 + Symfony 8.0             |
+| ORM       | Doctrine ORM 3.6 + Migrations     |
+| BDD       | MySQL 8                          |
+| Frontend  | Twig + Bootstrap 5 + AssetMapper  |
+| JS        | Stimulus + Turbo                  |
+| Sécurité  | Argon2id, firewalls session + API Bearer |
+| Qualité   | PHPUnit, PHPStan, PHP-CS-Fixer    |
 
 ---
 
@@ -20,8 +29,8 @@ SaaS de location d'unités serveur en datacenter. Tarification multi-tiers, pani
 
 - PHP ≥ 8.4 + Composer
 - MySQL 8
-- Symfony CLI (optionnel)
-- **Pas de Node.js** — AssetMapper est natif à Symfony
+- Symfony CLI (optionnel, pour `symfony serve`)
+- **Pas de Node.js** — AssetMapper gère les assets nativement
 
 ---
 
@@ -31,21 +40,21 @@ SaaS de location d'unités serveur en datacenter. Tarification multi-tiers, pani
 git clone https://github.com/clem-clem06/WTG-leger
 cd WTG-leger
 composer install
-cp .env .env.local
+cp .env .env.local      # puis renseigner les secrets (voir plus bas)
 ```
 
-Configurer `.env.local` (voir section Variables d'environnement), puis :
+Création de la base + données de démo :
 
 ```bash
 php bin/console doctrine:database:create
 php bin/console doctrine:migrations:migrate
 php bin/console doctrine:fixtures:load
-symfony serve
+symfony serve            # ou configurer un vhost
 ```
 
-L'application est accessible sur `http://127.0.0.1:8000`.
+→ Application sur **http://127.0.0.1:8000**.
 
-Les fixtures créent automatiquement 4 comptes :
+### Comptes de démonstration (fixtures)
 
 | Email                | Mot de passe   | Rôle            |
 |----------------------|----------------|-----------------|
@@ -54,16 +63,21 @@ Les fixtures créent automatiquement 4 comptes :
 | technicien@wtg.fr    | Technicien123! | ROLE_TECHNICIEN |
 | client@hotmail.fr    | Client123!     | ROLE_CLIENT     |
 
+> Seul `ROLE_CLIENT` peut acheter et accéder à l'espace client. Les autres rôles sont
+> destinés au client lourd ; sur le site, ils voient une page de blocage.
+
 ---
 
 ## Variables d'environnement
 
-| Variable            | Description                              |
-|---------------------|------------------------------------------|
-| `DATABASE_URL`      | Connexion MySQL                          |
-| `APP_SECRET`        | Clé de session Symfony                   |
-| `API_TOKEN_CLIENT`  | Token Bearer pour l'API REST             |
-| `CORS_ALLOW_ORIGIN` | Regex des origines autorisées (CORS)     |
+À définir dans `.env.local` (jamais commité) :
+
+| Variable            | Description                                   |
+|---------------------|-----------------------------------------------|
+| `DATABASE_URL`      | Connexion MySQL                               |
+| `APP_SECRET`        | Clé de session Symfony                        |
+| `API_TOKEN_CLIENT`  | Token Bearer du compte client (API REST)      |
+| `CORS_ALLOW_ORIGIN` | Regex des origines autorisées (CORS)          |
 
 ---
 
@@ -72,14 +86,19 @@ Les fixtures créent automatiquement 4 comptes :
 ```
 src/
 ├── Controller/     # Home, Cart, Checkout, Customer, Offer, Api
-├── Entity/         # User, Offre, Baie, Unite, Order, Payment, Card, Intervention…
+├── Entity/         # User, Offre, Baie, Unite, Cart, CartItem,
+│                   # Order, OrderItem, Payment, Card, Intervention
 ├── Service/        # CartService, CheckoutService, PaymentService, RegistrationService
-├── Repository/     # Requêtes Doctrine personnalisées
+├── Repository/     # Requêtes Doctrine personnalisées (verrouillage SQL, etc.)
 ├── Security/       # ApiTokenHandler (authentification Bearer)
-└── DataFixtures/   # 4 offres, 30 baies (× 42 unités), 4 utilisateurs
+├── Enum/           # Constantes de statuts/états (PaymentStatus, OrderStatus, UniteEtat)
+├── Command/        # CleanVirementsCommand (annule les virements expirés > 14 j)
+└── DataFixtures/   # 4 offres, 30 baies (× 42 unités = 1260), 4 utilisateurs
 
 templates/          # Vues Twig par domaine (home, cart, checkout, customer…)
 assets/styles/      # Design system CSS (app.css + un fichier par page)
+docs/               # MCD / MLD (PlantUML + PNG)
+tests/              # PHPUnit (unitaires + fonctionnels)
 ```
 
 ---
@@ -88,50 +107,86 @@ assets/styles/      # Design system CSS (app.css + un fichier par page)
 
 | Rôle              | Accès                                                  |
 |-------------------|--------------------------------------------------------|
-| `ROLE_CLIENT`     | Panier, paiement, espace client, API                   |
-| `ROLE_COMPTABLE`  | Lecture back-office (client lourd)                     |
+| `ROLE_CLIENT`     | Panier, paiement, espace client, API REST              |
+| `ROLE_COMPTABLE`  | Back-office (client lourd)                             |
 | `ROLE_TECHNICIEN` | Interventions / maintenance (client lourd)             |
 | `ROLE_ADMIN`      | Accès complet                                          |
 
 Deux firewalls Symfony :
 
-- **`api`** — stateless, authentification par Bearer token (`Authorization: Bearer <token>`)
-- **`main`** — session PHP, formulaire de login, remember-me 24 h
+- **`api`** — *stateless*, authentification par **Bearer token**
+  (`Authorization: Bearer <token>`) via `ApiTokenHandler`.
+- **`main`** — session PHP, formulaire de login, remember-me 24 h.
 
-Les administrateurs et comptables qui accèdent à la page d'accueil voient une page bloquée leur indiquant qu'ils ne peuvent pas effectuer d'achats.
+Mots de passe hachés en **Argon2id**. Le `apiToken` est exclu de la sérialisation de session.
 
 ---
 
 ## Routes principales
 
-| URL              | Méthode   | Accès         |
-|------------------|-----------|---------------|
-| `/`              | GET       | Public        |
-| `/offer/{id}`    | GET / POST| Public        |
-| `/cart`          | GET / POST| ROLE_CLIENT   |
-| `/checkout`      | GET / POST| ROLE_CLIENT   |
-| `/customer`      | GET       | ROLE_CLIENT   |
-| `/api/unites`    | GET       | ROLE_CLIENT (Bearer) |
+| URL                       | Méthode    | Accès                  |
+|---------------------------|------------|------------------------|
+| `/`                       | GET        | Public                 |
+| `/offer/{id}`             | GET / POST | ROLE_CLIENT            |
+| `/cart`                   | GET / POST | ROLE_CLIENT            |
+| `/checkout`               | GET / POST | ROLE_CLIENT            |
+| `/customer`               | GET        | ROLE_CLIENT (session)  |
+| `/customer/unites.json`   | GET        | ROLE_CLIENT (session)  |
+| `/api/unites`             | GET        | ROLE_CLIENT (Bearer)   |
 
 ---
 
 ## API REST
+
+Endpoint *stateless* protégé par token Bearer :
 
 ```http
 GET /api/unites
 Authorization: Bearer <API_TOKEN_CLIENT>
 ```
 
-Retourne la liste des unités louées par l'utilisateur authentifié.
+Retourne les unités louées par l'utilisateur authentifié :
 
 ```json
 [
   {
-    "id": 12,
-    "numero": "U-042",
+    "id": 1,
+    "numero": "U01",
     "etat": "OK",
-    "baie": "B-07",
-    "dateFinLocation": "2027-04-01"
+    "baie": "B001",
+    "dateFinLocation": "01/03/2027"
   }
 ]
 ```
+
+> `/customer/unites.json` renvoie les mêmes données mais via la **session** (navigable
+> directement dans le navigateur une fois connecté).
+
+---
+
+## Tests & qualité
+
+```bash
+# Toute la suite (nécessite la base de test)
+php bin/phpunit
+
+# Unitaires seulement (sans base de données)
+php bin/phpunit tests/Service tests/Entity tests/Security
+
+# Analyse statique & style
+vendor/bin/phpstan analyse
+vendor/bin/php-cs-fixer fix --dry-run
+```
+
+Base de test (une fois) :
+
+```bash
+php bin/console --env=test doctrine:database:create --if-not-exists
+php bin/console --env=test doctrine:migrations:migrate --no-interaction
+```
+
+---
+
+## Modèle de données
+
+Les diagrammes **MCD** et **MLD** sont dans `docs/` (sources PlantUML `.puml` + exports `.png`).
