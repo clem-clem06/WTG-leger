@@ -45,13 +45,14 @@ symfony serve
 
 L'application est accessible sur `http://127.0.0.1:8000`.
 
-Les fixtures créent automatiquement 3 comptes :
+Les fixtures créent automatiquement 4 comptes :
 
-| Email               | Mot de passe | Rôle          |
-|---------------------|--------------|---------------|
-| admin@wtg.fr        | password     | ROLE_ADMIN    |
-| comptable@wtg.fr    | password     | ROLE_COMPTABLE|
-| client@wtg.fr       | password     | ROLE_CLIENT   |
+| Email                | Mot de passe   | Rôle            |
+|----------------------|----------------|-----------------|
+| admin@wtg.fr         | Admin123!      | ROLE_ADMIN      |
+| comptable@wtg.fr     | Comptable123!  | ROLE_COMPTABLE  |
+| technicien@wtg.fr    | Technicien123! | ROLE_TECHNICIEN |
+| client@hotmail.fr    | Client123!     | ROLE_CLIENT     |
 
 ---
 
@@ -75,7 +76,7 @@ src/
 ├── Service/        # CartService, CheckoutService, PaymentService, RegistrationService
 ├── Repository/     # Requêtes Doctrine personnalisées
 ├── Security/       # ApiTokenHandler (authentification Bearer)
-└── DataFixtures/   # 4 offres, 30 baies (× 42 unités), 3 utilisateurs
+└── DataFixtures/   # 4 offres, 30 baies (× 42 unités), 4 utilisateurs
 
 templates/          # Vues Twig par domaine (home, cart, checkout, customer…)
 assets/styles/      # Design system CSS (app.css + un fichier par page)
@@ -85,11 +86,12 @@ assets/styles/      # Design system CSS (app.css + un fichier par page)
 
 ## Rôles & Sécurité
 
-| Rôle             | Accès                                        |
-|------------------|----------------------------------------------|
-| `ROLE_CLIENT`    | Panier, paiement, espace client, API         |
-| `ROLE_COMPTABLE` | Lecture back-office                          |
-| `ROLE_ADMIN`     | Accès complet                                |
+| Rôle              | Accès                                                  |
+|-------------------|--------------------------------------------------------|
+| `ROLE_CLIENT`     | Panier, paiement, espace client, API                   |
+| `ROLE_COMPTABLE`  | Lecture back-office (client lourd)                     |
+| `ROLE_TECHNICIEN` | Interventions / maintenance (client lourd)             |
+| `ROLE_ADMIN`      | Accès complet                                          |
 
 Deux firewalls Symfony :
 

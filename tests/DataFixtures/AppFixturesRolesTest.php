@@ -38,6 +38,13 @@ class AppFixturesRolesTest extends KernelTestCase
         $this->assertContains('ROLE_COMPTABLE', $user->getRoles());
     }
 
+    public function testTechnicienHasRoleTechnicien(): void
+    {
+        $user = $this->em->getRepository(User::class)->findOneBy(['email' => 'technicien@wtg.fr']);
+        $this->assertNotNull($user, 'technicien@wtg.fr doit exister en base');
+        $this->assertContains('ROLE_TECHNICIEN', $user->getRoles());
+    }
+
     public function testClientHasRoleClient(): void
     {
         $user = $this->em->getRepository(User::class)->findOneBy(['email' => 'client@hotmail.fr']);

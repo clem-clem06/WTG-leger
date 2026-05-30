@@ -2,6 +2,7 @@ security:
 
     role_hierarchy:
         ROLE_COMPTABLE: ROLE_USER
+        ROLE_TECHNICIEN: ROLE_USER
         ROLE_ADMIN: ROLE_COMPTABLE
         ROLE_CLIENT: ROLE_USER
 

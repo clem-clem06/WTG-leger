@@ -83,6 +83,13 @@ class AppFixtures extends Fixture
         $comptable->setPassword($this->passwordHasher->hashPassword($comptable, 'Comptable123!'));
         $manager->persist($comptable);
 
+        // ── Technicien ──────────────────────────────────────────────
+        $technicien = new User();
+        $technicien->setEmail('technicien@wtg.fr');
+        $technicien->setRoles(['ROLE_TECHNICIEN']);
+        $technicien->setPassword($this->passwordHasher->hashPassword($technicien, 'Technicien123!'));
+        $manager->persist($technicien);
+
         // ── Client de test ──────────────────────────────────────────
         // Ce user a ROLE_USER → il N'A PAS accès à l'application Java
         // Il peut seulement se connecter au site Symfony (le léger)

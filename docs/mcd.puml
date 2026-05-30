@@ -127,9 +127,9 @@ BAIE ||--o{ UNITE : "héberge"
 UNITE }o--o{ INTERVENTION : "subit"
 
 note bottom of USER
-  Rôles : ROLE_ADMIN, ROLE_COMPTABLE, ROLE_CLIENT
+  Rôles : ROLE_ADMIN, ROLE_COMPTABLE, ROLE_TECHNICIEN, ROLE_CLIENT
   apiToken : authentification API REST stateless
-  Un technicien (ROLE_ADMIN) réalise les interventions
+  Un technicien (ROLE_TECHNICIEN) réalise les interventions
 end note
 
 note bottom of OFFRE
