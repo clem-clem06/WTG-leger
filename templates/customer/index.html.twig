@@ -12,7 +12,7 @@
                 <p class="lead text-muted mb-0">Bienvenue dans votre espace client, <strong>{{ user.email }}</strong>.</p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                <a href="{{ path('app_home') }}" class="btn btn-outline-primary rounded-pill px-4 shadow-sm">
+                <a href="{{ path('app_home') }}#offres" class="btn btn-outline-primary rounded-pill px-4 shadow-sm">
                     <i class="fas fa-server me-2"></i>Louer des unités
                 </a>
             </div>
@@ -234,8 +234,14 @@
                                                 {% elseif unite.etat|lower == 'en attente de paiement' %}
                                                     <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half me-1"></i>En attente</span>
 
+                                                {% elseif unite.etat|lower == 'maintenance' %}
+                                                    <span class="badge bg-info text-dark"><i class="fas fa-tools me-1"></i>En maintenance</span>
+
+                                                {% elseif unite.etat|lower == 'incident' %}
+                                                    <span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i>Incident</span>
+
                                                 {% else %}
-                                                    <span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i>{{ unite.etat|capitalize }}</span>
+                                                    <span class="badge bg-secondary"><i class="fas fa-question-circle me-1"></i>{{ unite.etat|capitalize }}</span>
                                                 {% endif %}
                                             </td>
 
