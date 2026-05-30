@@ -124,15 +124,37 @@ Mots de passe hachés en **Argon2id**. Le `apiToken` est exclu de la sérialisat
 
 ## Routes principales
 
-| URL                       | Méthode    | Accès                  |
-|---------------------------|------------|------------------------|
-| `/`                       | GET        | Public                 |
-| `/offer/{id}`             | GET / POST | ROLE_CLIENT            |
-| `/cart`                   | GET / POST | ROLE_CLIENT            |
-| `/checkout`               | GET / POST | ROLE_CLIENT            |
-| `/customer`               | GET        | ROLE_CLIENT (session)  |
-| `/customer/unites.json`   | GET        | ROLE_CLIENT (session)  |
-| `/api/unites`             | GET        | ROLE_CLIENT (Bearer)   |
+Les **verbes HTTP sont respectés** : `GET` pour la lecture (sans effet de bord),
+`POST` pour toute action qui modifie l'état (panier, paiement).
+
+**Lecture / affichage (`GET`)**
+
+| URL                       | Accès                  | Rôle                  |
+|---------------------------|------------------------|-----------------------|
+| `/`                       | Accueil + catalogue    | Public                |
+| `/offer/{id}`             | Détail d'une offre     | ROLE_CLIENT           |
+| `/cart`                   | Affichage du panier    | ROLE_CLIENT (session) |
+| `/checkout`               | Formulaire de paiement | ROLE_CLIENT (session) |
+| `/customer`              | Espace client          | ROLE_CLIENT (session) |
+| `/customer/unites.json`   | Unités en JSON         | ROLE_CLIENT (session) |
+| `/api/unites`             | API REST des unités    | ROLE_CLIENT (Bearer)  |
+| `/login` · `/register`    | Connexion / inscription| Public / ROLE_CLIENT  |
+
+**Actions / modifications (`POST`, protégées par token CSRF)**
+
+| URL                          | Action                       |
+|------------------------------|------------------------------|
+| `/cart/add/{id}`             | Ajouter une offre au panier  |
+| `/cart/remove/{id}`          | Retirer une ligne            |
+| `/cart/increase/{id}`        | Quantité +1                  |
+| `/cart/decrease/{id}`        | Quantité −1                  |
+| `/cart/duree/{id}/{action}`  | Modifier la durée            |
+| `/checkout`                  | Valider le paiement (carte)  |
+| `/checkout/virement`         | Commander par virement       |
+
+> `/api/unites` est en lecture seule → `GET` est le bon verbe. Les écritures passent
+> par des formulaires Twig (HTML ne supporte que `GET`/`POST`), d'où le `POST` systématique
+> pour les mutations.
 
 ---
 
